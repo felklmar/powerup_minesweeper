@@ -1,8 +1,18 @@
 import pygame as pg
 
 TILES = {
-    "unopened" : pg.image.load( 'assets/unopened.svg' ),
-    "flag"     : pg.image.load( 'assets/flag.svg'     ),
+    'unopened' : pg.image.load( 'assets/unopened.svg' ),
+    'flag' : pg.image.load( 'assets/flag.svg' ),
+    'mine' : pg.image.load( 'assets/mine.svg' ),
+    '0' : pg.image.load( 'assets/0.svg' ),
+    '1' : pg.image.load( 'assets/1.svg' ),
+    '2' : pg.image.load( 'assets/2.svg' ),
+    '3' : pg.image.load( 'assets/3.svg' ),
+    '4' : pg.image.load( 'assets/4.svg' ),
+    '5' : pg.image.load( 'assets/5.svg' ),
+    '6' : pg.image.load( 'assets/6.svg' ),
+    '7' : pg.image.load( 'assets/7.svg' ),
+    '8' : pg.image.load( 'assets/8.svg' )
 }
 
 class Tile:
@@ -18,7 +28,7 @@ class Tile:
     def __eq__( self, other ) -> bool:
         return self.m_x == other.m_x and self.m_y == other.m_y
 
-    def display( self, window ):
+    def display( self, window ):    
         if not self.m_opened:
             if self.m_flaged:
                 window.blit(
@@ -28,7 +38,16 @@ class Tile:
                 window.blit(
                     pg.transform.scale( TILES['unopened'], ( self.m_size, self.m_size ) ),
                     ( self.m_y, self.m_x ) )        
-    
+        else:
+            window.blit(
+                pg.transform.scale( TILES[str( self.m_mines_around )], ( self.m_size, self.m_size ) ),
+                ( self.m_y, self.m_x ) )
+
+        if self.m_mine:
+            window.blit(
+                pg.transform.scale( TILES['unopened'], ( self.m_size, self.m_size ) ),
+                ( self.m_y, self.m_x ) )
+
     def click( self, button ) -> tuple:
         cursor_position = pg.mouse.get_pos() 
         if self.m_rect.collidepoint( cursor_position ):
