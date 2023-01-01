@@ -39,14 +39,14 @@ class Tile:
                     pg.transform.scale( TILES['unopened'], ( self.m_size, self.m_size ) ),
                     ( self.m_y, self.m_x ) )        
         else:
-            window.blit(
-                pg.transform.scale( TILES[str( self.m_mines_around )], ( self.m_size, self.m_size ) ),
-                ( self.m_y, self.m_x ) )
-
-        if self.m_mine:
-            window.blit(
-                pg.transform.scale( TILES['unopened'], ( self.m_size, self.m_size ) ),
-                ( self.m_y, self.m_x ) )
+            if self.m_mine:
+                window.blit(
+                    pg.transform.scale( TILES['mine'], ( self.m_size, self.m_size ) ),
+                    ( self.m_y, self.m_x ) )
+            else:
+                window.blit(
+                    pg.transform.scale( TILES[str( self.m_mines_around )], ( self.m_size, self.m_size ) ),
+                    ( self.m_y, self.m_x ) )
 
     def click( self, button ) -> tuple:
         cursor_position = pg.mouse.get_pos() 
@@ -58,18 +58,24 @@ class Tile:
     def arr_coords( self ) -> tuple:
         return ( self.m_x//self.m_size, self.m_y//self.m_size )
 
-    def contains_mine( self ) -> bool:
+    def is_mine( self ) -> bool:
         return self.m_mine
 
     def is_opened( self ) -> bool:
         return self.m_opened
 
-    def is_mine( self ):
+    def is_flaged( self ) -> bool:
+        return self.m_flaged
+
+    def add_mine( self ):
         self.m_mine = True
 
     def open( self ) -> bool:
-        if not self.m_opened:
+        if not self.m_opened and not self.m_flaged:
             self.m_opened = True
             return True
 
         return False
+
+    def flag( self ):
+        self.m_flaged = not self.m_flaged
