@@ -23,8 +23,10 @@ class Minefield:
                 y, x = rd.randint( 0, self.m_height - 1 ), rd.randint( 0, self.m_width - 1 )
                 if not self.m_field[y, x].contains_mine():
                     break
-
+            
             self.m_field[y, x].is_mine()
+            for neighbor in self.get_neighbors( ( x, y ) ):
+                neighbor.m_mines_around = neighbor.m_mines_around + 1  
             self.m_mines.append( ( x, y ) )
 
     def dimensions( self ) -> tuple:
@@ -44,8 +46,9 @@ class Minefield:
             else:
                 continue
             break
-
-        self.open( coords, self.get_neighbors( coords ) )
+        
+        if button == 1 and coords != ( -1, -1 ):
+            self.open( coords )
 
     def get_neighbors( self, coords : tuple ) -> np.array:
         neighbors = self.m_field[
@@ -53,7 +56,15 @@ class Minefield:
             max( coords[0] - 1, 0 ) : min( coords[0] + 2, self.m_width ) ].flatten()
         return np.delete( neighbors, np.where( neighbors == Tile( coords[0]*self.m_tile_size + OFFSET_X, coords[1]*self.m_tile_size + OFFSET_Y ) ) )
 
-    def open( self, coords, neighbors ):
+    def open( self, coords ):
         if self.m_field[coords[1], coords[0]].open():
-            for tile in neighbors:
-                tile.open() 
+            self.flood_fill( coords )
+
+    def flood_fill( self, coords ):
+        self.m_field[coords[1], coords[0]].open()
+
+        for neighbor in self.get_neighbors( coords ):
+            if not neighbor.is_opened() and neighbor.m_mines_around == 0:
+                self.flood_fill( neighbor.arr_coords() )
+            elif self.m_field[coords[1], coords[0]].m_mines_around == 0 and not self.m_field[coords[1], coords[0]].contains_mine():
+                neighbor.open()
