@@ -28,10 +28,10 @@ class Minefield:
         for _ in range( self.m_num_of_mines ):
             while True:
                 y, x = rd.randint( 0, self.m_height - 1 ), rd.randint( 0, self.m_width - 1 )
-                if not self.m_field[y, x].contains_mine() and ( x, y ) != start_click_coords:
+                if not self.m_field[y, x].is_mine() and ( x, y ) != start_click_coords:
                     break
             
-            self.m_field[y, x].is_mine()
+            self.m_field[y, x].add_mine()
             for neighbor in self.get_neighbors( ( x, y ) ):
                 neighbor.m_mines_around = neighbor.m_mines_around + 1  
             self.m_mines.append( ( x, y ) )
@@ -58,11 +58,13 @@ class Minefield:
             if button == 1:
                 if len( self.m_mines ) == 0:
                     self.hide_mines( coords )
-                if not self.m_field[coords[1], coords[0]].m_flaged and self.m_field[coords[1], coords[0]].contains_mine():
+                if not self.m_field[coords[1], coords[0]].is_flaged() and self.m_field[coords[1], coords[0]].is_mine():
                     self.show_mines()
                     return 'l'
                 else:
-                    self.open( coords )
+                    if not self.open( coords ):
+                        self.show_mines()
+                        return 'l'
                 if self.are_safe_tiles_open():
                     return 'w'
             if button == 3:
@@ -76,18 +78,26 @@ class Minefield:
             max( coords[0] - 1, 0 ) : min( coords[0] + 2, self.m_width ) ].flatten()
         return np.delete( neighbors, np.where( neighbors == Tile( coords[0]*self.m_tile_size + OFFSET_X, coords[1]*self.m_tile_size + OFFSET_Y ) ) )
 
-    def open( self, coords ):
+    def open( self, coords ) -> bool:
         if self.m_field[coords[1], coords[0]].open():
             self.flood_fill( coords )
+        else:
+            check = self.check_neighbors( coords )
+            if check == 'open':
+                for neighbor in self.get_neighbors( coords ):
+                    neighbor.open()
+            elif check == 'boom':
+                return False
+        return True
 
     def flood_fill( self, coords ):
-        if not self.m_field[coords[1], coords[0]].contains_mine(): 
+        if not self.m_field[coords[1], coords[0]].is_mine(): 
             self.m_field[coords[1], coords[0]].open()
 
         for neighbor in self.get_neighbors( coords ):
             if not neighbor.is_opened() and neighbor.m_mines_around == 0:
                 self.flood_fill( neighbor.arr_coords() )
-            elif self.m_field[coords[1], coords[0]].m_mines_around == 0 and not self.m_field[coords[1], coords[0]].contains_mine():
+            elif self.m_field[coords[1], coords[0]].m_mines_around == 0 and not self.m_field[coords[1], coords[0]].is_mine():
                 neighbor.open()
 
     def show_mines( self ):
@@ -97,7 +107,23 @@ class Minefield:
     def are_safe_tiles_open( self ) -> bool:
         for row in self.m_field:
             for tile in row:
-                if not tile.is_opened() and not tile.contains_mine():
+                if not tile.is_opened() and not tile.is_mine():
                     return False
         return True
-    
+
+    def check_neighbors( self, coords ) -> str:
+        flaged, mines, flaged_mines = 0, 0, 0
+        for neighbor in self.get_neighbors( coords ):
+            if neighbor.is_mine():
+                mines += 1
+            if neighbor.is_flaged():
+                flaged += 1 
+            if neighbor.is_mine() and neighbor.is_flaged():
+                flaged_mines += 1
+
+        if flaged_mines == mines:
+            return 'open'
+        elif flaged == mines:
+            return 'boom'
+
+        return 'ok'
