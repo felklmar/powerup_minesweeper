@@ -1,5 +1,5 @@
-from minefield import *
-from tile import TILES
+import pygame as pg
+from minefield import Minefield
 
 WIDTH, HEIGHT = 1920, 1080
 WIN = pg.display.set_mode( ( WIDTH, HEIGHT ), pg.RESIZABLE )
@@ -7,10 +7,7 @@ pg.display.set_caption( "minesweeper" )
 
 def main( window : pg.Surface ):
     clock = pg.time.Clock()
-    m = Minefield( ( 10, 20 ), ( 50, 50 ), 20, window )
-    run, game_status = True, 'r'
-    window.fill( (255,255,255) )
-    m.display_field()
+    run, game_status, field_generated = True, 'r', False
     while run:
         clock.tick( 60 )
         for event in pg.event.get():
@@ -18,23 +15,30 @@ def main( window : pg.Surface ):
                 run = False
             if event.type == pg.VIDEORESIZE:
                 window.fill( (255,255,255) )
-                m.display_field()
+                minefield.display_field()
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     run = False
 
             if game_status == 'r':
+                if not field_generated:
+                    minefield = Minefield( ( 40, 70 ), ( 20, 20 ), 500, window )
+                    window.fill( (255,255,255) )
+                    minefield.display_field()
+                    field_generated = True
                 if event.type == pg.MOUSEBUTTONUP:
-                    game_status = m.check_click( event.button )
-                    m.display_field()
+                    game_status = minefield.check_click( event.button )
+                    minefield.display_field()
             elif game_status == 'l':
                 if event.type == pg.MOUSEBUTTONUP:
-                    run = False
+                    game_status = 'r'
+                    field_generated = False
             elif game_status == 'w':
                 window.fill( (255,255,255) )
                 if event.type == pg.MOUSEBUTTONUP:
-                    run = False
-                    
+                    game_status = 'r'
+                    field_generated = False
+
         pg.display.update()
 
     pg.quit()
