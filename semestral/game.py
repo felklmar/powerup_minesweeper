@@ -7,7 +7,7 @@ pg.display.set_caption( "minesweeper" )
 
 def main( window : pg.Surface ):
     clock = pg.time.Clock()
-    m = Minefield( 10, 10, 50, 10, window )
+    m = Minefield( ( 50, 30 ), ( 25, 25 ), 200, window )
     run, game_status = True, 'r'
     fullscreen = False
     window.fill( (255,255,255) )
@@ -15,7 +15,6 @@ def main( window : pg.Surface ):
     while run:
         clock.tick( 60 )
         for event in pg.event.get():
-            #print( game_status )
             if event.type == pg.QUIT:
                 run = False
             if event.type == pg.VIDEORESIZE:
@@ -24,20 +23,12 @@ def main( window : pg.Surface ):
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     run = False
-                if event.key == pg.K_f:
-                    fullscreen = not fullscreen
-                    if fullscreen:
-                        window = pg.display.set_mode( ( WIDTH, HEIGHT ), pg.FULLSCREEN )
-                    else:
-                        window = pg.display.set_mode( ( WIDTH, HEIGHT ), pg.RESIZABLE )       
 
             if game_status == 'r':
                 if event.type == pg.MOUSEBUTTONUP:
                     game_status = m.check_click( event.button )
                     m.display_field()
             elif game_status == 'l':
-                window.fill( (255,255,255) )
-                m.display_field()
                 if event.type == pg.MOUSEBUTTONUP:
                     run = False
             elif game_status == 'w':
