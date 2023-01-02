@@ -102,12 +102,9 @@ class Tile:
     def add_mine( self ):
         self.m_mine = True
 
-    def open( self ) -> bool:
+    def open( self ):
         if not self.m_open and not self.m_flag:
             self.m_open = True
-            return True
-
-        return False
 
     def flag( self ):
         if not self.m_open:
