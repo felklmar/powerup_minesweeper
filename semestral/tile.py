@@ -1,3 +1,9 @@
+"""
+Module that represents one tile of minefield
+--------------------------------------------
+Contains dictionary TILES, which is used for pictures of tiles
+and class Tile, which contains all necessary information
+"""
 import pygame as pg
 
 TILES = {
@@ -16,66 +22,81 @@ TILES = {
 }
 
 class Tile:
-    def __init__( self, x = 1, y = 1, size = 10 ):
-        self.m_x, self.m_y = x, y
-        self.m_size = size
-        self.m_rect = pg.Rect( ( y, x ), ( size, size ) )
-        self.m_opened = False
-        self.m_flaged = False
-        self.m_mine   = False
-        self.m_mines_around = 0
+    """Class representing one tile of minefield"""
+    def __init__( self, coords : tuple , dim : tuple ):
+        """
+        Constructor for class instance
+        ------------------------------
+
+        Args:
+            coords (tuple): tile coordinates ( y, x )
+            dim (tuple): tile dimension ( tile is usually a square, but doesn't have to be )
+        """
+        self.m_coords = coords
+        self.m_dim  = dim
+        self.m_rect = pg.Rect( coords, dim )
+        self.m_open = False
+        self.m_flag = False
+        self.m_mine = False
+        self.m_min_arnd = 0
 
     def __eq__( self, other ) -> bool:
-        return self.m_x == other.m_x and self.m_y == other.m_y
+        """Operator ==, returns true if tile coordinates are equal"""
+        return self.m_coords == other.m_coords
 
-    def display( self, window ):    
-        if not self.m_opened:
-            if self.m_flaged:
-                window.blit(
-                    pg.transform.scale( TILES['flag'], ( self.m_size, self.m_size ) ),
-                    ( self.m_y, self.m_x ) )
+    def display( self, win : pg.Surface ):
+        """
+        Displays the tile to given pygame window/surface
+        ------------------------------------------------
+        - uses TILES dictionary to display right sprites/pictures
+
+        Args:
+            win (pg.Surface): pygame window/surface on which tile should display
+        """
+        if not self.m_open:
+            if self.m_flag:
+                win.blit(
+                    pg.transform.scale( TILES['flag'], self.m_dim ), self.m_coords )
             else:
-                window.blit(
-                    pg.transform.scale( TILES['unopened'], ( self.m_size, self.m_size ) ),
-                    ( self.m_y, self.m_x ) )        
+                win.blit(
+                    pg.transform.scale( TILES['unopened'], self.m_dim ), self.m_coords )
         else:
             if self.m_mine:
-                window.blit(
-                    pg.transform.scale( TILES['mine'], ( self.m_size, self.m_size ) ),
-                    ( self.m_y, self.m_x ) )
+                win.blit(
+                    pg.transform.scale( TILES['mine'], self.m_dim ), self.m_coords )
             else:
-                window.blit(
-                    pg.transform.scale( TILES[str( self.m_mines_around )], ( self.m_size, self.m_size ) ),
-                    ( self.m_y, self.m_x ) )
+                win.blit(
+                    pg.transform.scale( TILES[str( self.m_min_arnd )], self.m_dim ), self.m_coords )
 
-    def click( self, button ) -> tuple:
-        cursor_position = pg.mouse.get_pos() 
+    def click( self ) -> tuple:
+        cursor_position = pg.mouse.get_pos()
+        print( self.m_rect, cursor_position )
         if self.m_rect.collidepoint( cursor_position ):
             return self.arr_coords()
 
         return ( -1, -1 )
-    
+
     def arr_coords( self ) -> tuple:
-        return ( self.m_x//self.m_size, self.m_y//self.m_size )
+        return ( self.m_coords[0]//self.m_dim[0], self.m_coords[1]//self.m_dim[1] )
 
     def is_mine( self ) -> bool:
         return self.m_mine
 
     def is_opened( self ) -> bool:
-        return self.m_opened
+        return self.m_open
 
     def is_flaged( self ) -> bool:
-        return self.m_flaged
+        return self.m_flag
 
     def add_mine( self ):
         self.m_mine = True
 
     def open( self ) -> bool:
-        if not self.m_opened and not self.m_flaged:
-            self.m_opened = True
+        if not self.m_open and not self.m_flag:
+            self.m_open = True
             return True
 
         return False
 
     def flag( self ):
-        self.m_flaged = not self.m_flaged
+        self.m_flag = not self.m_flag
