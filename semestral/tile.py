@@ -6,6 +6,15 @@ and class Tile, which contains all necessary information
 """
 import pygame as pg
 
+"""offsets"""
+OFFSET = {
+    'x'   : 100,
+    'y'   : 100,
+    't_x' : 10,
+    't_y' : 10
+}
+
+"""Dictionary for tile sprites"""
 TILES = {
     'unopened' : pg.image.load( 'assets/unopened.svg' ),
     'flag' : pg.image.load( 'assets/flag.svg' ),
@@ -34,11 +43,14 @@ class Tile:
         """
         self.m_coords = coords
         self.m_dim  = dim
-        self.m_rect = pg.Rect( coords, dim )
+        self.m_rect = pg.Rect( ( coords[1] + OFFSET['x'], coords[0] + OFFSET['y'] ), dim[::-1] )
         self.m_open = False
         self.m_flag = False
         self.m_mine = False
         self.m_min_arnd = 0
+
+    def __str__( self ) -> str:
+        return f'coords = { self.m_coords }, status = { ( self.m_open, self.m_flag, self.m_mine ) }'
 
     def __eq__( self, other ) -> bool:
         """Operator ==, returns true if tile coordinates are equal"""
@@ -56,21 +68,20 @@ class Tile:
         if not self.m_open:
             if self.m_flag:
                 win.blit(
-                    pg.transform.scale( TILES['flag'], self.m_dim ), self.m_coords )
+                    pg.transform.scale( TILES['flag'], self.m_dim[::-1] ), self.m_coords[::-1] )
             else:
                 win.blit(
-                    pg.transform.scale( TILES['unopened'], self.m_dim ), self.m_coords )
+                    pg.transform.scale( TILES['unopened'], self.m_dim[::-1] ), self.m_coords[::-1] )
         else:
             if self.m_mine:
                 win.blit(
-                    pg.transform.scale( TILES['mine'], self.m_dim ), self.m_coords )
+                    pg.transform.scale( TILES['mine'], self.m_dim[::-1] ), self.m_coords[::-1] )
             else:
                 win.blit(
-                    pg.transform.scale( TILES[str( self.m_min_arnd )], self.m_dim ), self.m_coords )
+                    pg.transform.scale( TILES[str( self.m_min_arnd )], self.m_dim[::-1] ), self.m_coords[::-1] )
 
     def click( self ) -> tuple:
         cursor_position = pg.mouse.get_pos()
-        print( self.m_rect, cursor_position )
         if self.m_rect.collidepoint( cursor_position ):
             return self.arr_coords()
 
@@ -99,4 +110,5 @@ class Tile:
         return False
 
     def flag( self ):
-        self.m_flag = not self.m_flag
+        if not self.m_open:
+            self.m_flag = not self.m_flag
