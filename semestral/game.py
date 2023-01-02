@@ -7,9 +7,8 @@ pg.display.set_caption( "minesweeper" )
 
 def main( window : pg.Surface ):
     clock = pg.time.Clock()
-    m = Minefield( ( 50, 30 ), ( 25, 25 ), 200, window )
+    m = Minefield( ( 10, 20 ), ( 50, 50 ), 20, window )
     run, game_status = True, 'r'
-    fullscreen = False
     window.fill( (255,255,255) )
     m.display_field()
     while run:
