@@ -37,7 +37,7 @@ class Minefield:
                 y_idx, x_idx = rd.randint( 0, self.height() - 1 ), rd.randint( 0, self.width() - 1 )
                 if not self.m_field[y_idx, x_idx].is_mine() and ( y_idx, x_idx ) != start_click_coords:
                     break
-
+            
             self.m_field[y_idx, x_idx].add_mine()
             for neighbor in self.get_neighbors( ( y_idx, x_idx ) ):
                 neighbor.m_min_arnd += 1
@@ -45,12 +45,12 @@ class Minefield:
             self.m_mines.append( ( y_idx, x_idx ) )
 
     def display_field( self ):
-        surf = pg.Surface( self.m_rect.size ) 
+        surface = pg.Surface( self.m_rect.size ) 
         for row in self.m_field:
             for tile in row:
-                tile.display( surf )
+                tile.display( surface )
 
-        self.m_window.blit( surf, ( OFFSET['x'], OFFSET['y'] ) )
+        self.m_window.blit( surface, ( OFFSET['x'], OFFSET['y'] ) )
 
     def check_click( self, button ) -> str:
         for row in self.m_field:
@@ -61,7 +61,7 @@ class Minefield:
             else:
                 continue
             break
-
+        
         if coords != ( -1, -1 ):
             if button == 1 and not self.m_field[coords[0], coords[1]].is_flaged():
                 if len( self.m_mines ) == 0:
@@ -89,26 +89,60 @@ class Minefield:
 
     def open( self, coords ) -> bool:
         if not self.m_field[coords[0], coords[1]].is_flaged():
-            if self.m_field[coords[0], coords[1]].open():
-                self.flood_fill( coords )
+            if not self.m_field[coords[0], coords[1]].is_opened():
+                self.bfs_flood_fill( coords )
             else:
                 check = self.check_neighbors( coords )
                 if check == 'open':
                     for neighbor in self.get_neighbors( coords ):
-                        self.flood_fill( neighbor.arr_coords() )
+                        self.bfs_flood_fill( neighbor.arr_coords() )
                 elif check == 'boom':
                     return False
         return True
 
-    def flood_fill( self, coords ):
-        if not self.m_field[coords[0], coords[1]].is_mine():
-            self.m_field[coords[0], coords[1]].open()
+    #def flood_fill( self, coords ):
+    #    if not self.m_field[coords[0], coords[1]].is_mine():
+    #        self.m_field[coords[0], coords[1]].open()
+    #
+    #    for neighbor in self.get_neighbors( coords ):
+    #        if neighbor.arr_coords() != coords:
+    #            if not neighbor.is_opened() and neighbor.m_min_arnd == 0:
+    #                self.flood_fill( neighbor.arr_coords() )
+    #            elif self.m_field[coords[0], coords[1]].m_min_arnd == 0 and not self.m_field[coords[0], coords[1]].is_mine():
+    #                neighbor.open()
 
+    def bfs_flood_fill( self, coords ):
+        queue, visited = [], []
+        queue.append( coords )
+        visited.append( coords )
+
+        self.m_field[coords[0], coords[1]].open()
+
+        if self.m_field[coords[0], coords[1]].m_min_arnd != 0:
+            for neighbor in self.get_neighbors( coords ):
+                if not neighbor.is_mine() and neighbor.m_min_arnd == 0:
+                    queue.append( neighbor.arr_coords() )
+                    visited.append( neighbor.arr_coords() )
+
+        while queue:
+            s = queue.pop( 0 )
+            if self.m_field[s[0], s[1]].m_min_arnd == 0:
+                self.m_field[s[0], s[1]].open()
+            else:
+                continue
+
+            for neighbor in self.get_neighbors( s ):
+                if not neighbor.arr_coords() in visited: 
+                    if self.has_nomine_neighbor( neighbor.arr_coords() ):
+                        neighbor.open()
+                    queue.append( neighbor.arr_coords() )
+                    visited.append( neighbor.arr_coords() )
+
+    def has_nomine_neighbor( self, coords ) -> bool:
         for neighbor in self.get_neighbors( coords ):
-            if not neighbor.is_opened() and neighbor.m_min_arnd == 0:
-                self.flood_fill( neighbor.arr_coords() )
-            elif self.m_field[coords[0], coords[1]].m_min_arnd == 0 and not self.m_field[coords[0], coords[1]].is_mine():
-                neighbor.open()
+            if neighbor.m_min_arnd == 0:
+                return True
+        return False
 
     def show_mines( self ):
         for mine in self.m_mines:
