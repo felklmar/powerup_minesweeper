@@ -1,27 +1,26 @@
 import numpy as np
 import pygame as pg
 import random as rd
-from tile import Tile
-
-OFFSET_Y, OFFSET_X = 10, 20
+from tile import *
 
 class Minefield:
-    def __init__( self, 
-                  dim : tuple,
-                  tile_dim : tuple, 
-                  num_of_mines : np.uint32, 
+    def __init__( self,
+                  dim : tuple, tile_dim : tuple,
+                  num_of_mines : np.uint32,
                   window : pg.Surface ):
 
         self.m_dim = dim
-        self.m_t_dim = tile_dim
+        self.m_t_dim  = tile_dim
         self.m_window = window
+        self.m_rect   = pg.Rect( ( OFFSET['x'], OFFSET['y'] ), ( dim[1]*tile_dim[1] + 2*OFFSET['t_x'], dim[0]*tile_dim[0] + 2*OFFSET['t_y'] ) )
         self.m_field  = np.empty( [dim[0], dim[1]], dtype = Tile )
         self.m_mines  = []
         self.m_num_of_mines = num_of_mines
 
         for y in range( dim[0] ):
             for x in range( dim[1] ):
-                self.m_field[y, x] = Tile( ( y*tile_dim[0] + OFFSET_Y, x*tile_dim[1] + OFFSET_X ), tile_dim )
+                tile_coords = ( y*tile_dim[0] + OFFSET['t_y'], x*tile_dim[1] + OFFSET['t_x'] )
+                self.m_field[y, x] = Tile( tile_coords, tile_dim )
 
     def height( self ) -> int:
         return self.m_dim[0]
@@ -35,20 +34,23 @@ class Minefield:
     def hide_mines( self, start_click_coords : tuple ):
         for _ in range( self.m_num_of_mines ):
             while True:
-                y, x = rd.randint( 0, self.height() - 1 ), rd.randint( 0, self.width() - 1 )
-                if not self.m_field[y, x].is_mine() and ( x, y ) != start_click_coords:
+                y_idx, x_idx = rd.randint( 0, self.height() - 1 ), rd.randint( 0, self.width() - 1 )
+                if not self.m_field[y_idx, x_idx].is_mine() and ( y_idx, x_idx ) != start_click_coords:
                     break
-            
-            self.m_field[y, x].add_mine()
-            for neighbor in self.get_neighbors( ( y, x ) ):
+
+            self.m_field[y_idx, x_idx].add_mine()
+            for neighbor in self.get_neighbors( ( y_idx, x_idx ) ):
                 neighbor.m_min_arnd += 1
 
-            self.m_mines.append( ( y, x ) )
+            self.m_mines.append( ( y_idx, x_idx ) )
 
     def display_field( self ):
+        surf = pg.Surface( self.m_rect.size ) 
         for row in self.m_field:
             for tile in row:
-                tile.display( self.m_window )
+                tile.display( surf )
+
+        self.m_window.blit( surf, ( OFFSET['x'], OFFSET['y'] ) )
 
     def check_click( self, button ) -> str:
         for row in self.m_field:
@@ -59,18 +61,17 @@ class Minefield:
             else:
                 continue
             break
-        
+
         if coords != ( -1, -1 ):
-            if button == 1:
+            if button == 1 and not self.m_field[coords[0], coords[1]].is_flaged():
                 if len( self.m_mines ) == 0:
                     self.hide_mines( coords )
-                if not self.m_field[coords[0], coords[1]].is_flaged() and self.m_field[coords[0], coords[1]].is_mine():
+                if self.m_field[coords[0], coords[1]].is_mine():
                     self.show_mines()
                     return 'l'
-                else:
-                    if not self.open( coords ):
-                        self.show_mines()
-                        return 'l'
+                if not self.open( coords ):
+                    self.show_mines()
+                    return 'l'
                 if self.are_safe_tiles_open():
                     return 'w'
             if button == 3:
@@ -82,7 +83,9 @@ class Minefield:
         neighbors = self.m_field[
             max( coords[0] - 1, 0 ) : min( coords[0] + 2, self.height() ),
             max( coords[1] - 1, 0 ) : min( coords[1] + 2, self.width() ) ].flatten()
-        return np.delete( neighbors, np.where( neighbors == Tile( ( coords[0]*self.m_t_dim[0] + OFFSET_X, coords[1]*self.m_t_dim[1] + OFFSET_Y ), self.m_t_dim ) ) )
+        tile_to_del = Tile( ( coords[0]*self.m_t_dim[0] + OFFSET['t_y'], coords[1]*self.m_t_dim[1] + OFFSET['t_x'] ), self.m_t_dim )
+        neighbors = neighbors[ neighbors != tile_to_del ]
+        return neighbors
 
     def open( self, coords ) -> bool:
         if not self.m_field[coords[0], coords[1]].is_flaged():
@@ -98,7 +101,7 @@ class Minefield:
         return True
 
     def flood_fill( self, coords ):
-        if not self.m_field[coords[0], coords[1]].is_mine(): 
+        if not self.m_field[coords[0], coords[1]].is_mine():
             self.m_field[coords[0], coords[1]].open()
 
         for neighbor in self.get_neighbors( coords ):
