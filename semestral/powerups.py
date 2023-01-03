@@ -19,10 +19,10 @@ class Safe_Open( Powerup ):
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
             tile = minefield.m_field[c_click]
-            if tile.is_mine():
-                minefield.m_field[ c_click ].flag()
+            if tile.is_mine() and not tile.is_flag():
+                tile.flag()
             else:
-                minefield.m_field[ c_click ].open()
+                minefield.open( tile.arr_coords() )
 
             minefield.display_field()    
             return True
@@ -36,10 +36,6 @@ class Open_Bubble( Powerup ):
     def apply_powerup( self, minefield: Minefield ) -> bool:
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
-            #self.find_bubble( minefield )
-            #minefield.display_field()
-            #return True
-
             check = 0
             while True:
                 if check % minefield.m_field.size == 0:
@@ -65,11 +61,24 @@ class Open_Bubble( Powerup ):
 
         return True
 
-    #def find_bubble( self, minefield : Minefield ):
-    #    rot_degree = rd.randint( 1, 4 )
-    #    field = np.rot90( minefield.m_field, rot_degree )
-    #    for row in field:
-    #        for tile in row:
-    #            if not tile.is_open() and not tile.is_mine() and tile.mines_around() == 0:
-    #                minefield.open( tile.arr_coords() )
-    #                return
+class Cross_Open( Powerup ):
+    def __init__( self, coords : tuple, dim : tuple, color : tuple ):
+        super().__init__( coords, dim, color )
+
+    def apply_powerup( self, minefield: Minefield ) -> bool:
+        c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
+        if c_click != OUT_OF_BOUNDS:
+            shape = minefield.m_field.shape
+            col = minefield.m_field[ 0 : shape[0], c_click[1] ]
+            row = minefield.m_field[ c_click[0], 0 : shape[1] ]
+            cross = np.append( col, row )
+            for tile in cross:
+                if tile.is_mine() and not tile.is_flag():
+                    tile.flag()
+                else:
+                    minefield.open( tile.arr_coords() )
+
+            minefield.display_field()
+            return True
+
+        return False
