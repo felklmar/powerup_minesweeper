@@ -19,10 +19,11 @@ class Safe_Open( Powerup ):
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
             tile = minefield.m_field[c_click]
-            if tile.is_mine() and not tile.is_flag():
-                tile.flag()
-            else:
-                minefield.open( tile.arr_coords() )
+            if not tile.is_flag():
+                if tile.is_mine():
+                    tile.flag()
+                else:
+                    minefield.open( tile.arr_coords() )
 
             minefield.display_field()    
             return True
@@ -41,6 +42,7 @@ class Open_Bubble( Powerup ):
                 if check % minefield.m_field.size == 0:
                     if self.no_bubbles( minefield ):
                         break
+                check += 1
 
                 c_tile = ( rd.randint( 0, minefield.height() - 1 ), rd.randint( 0, minefield.width() - 1 ) )
                 tile = minefield.m_field[c_tile]
@@ -68,15 +70,16 @@ class Cross_Open( Powerup ):
     def apply_powerup( self, minefield: Minefield ) -> bool:
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
-            shape = minefield.m_field.shape
-            col = minefield.m_field[ 0 : shape[0], c_click[1] ]
-            row = minefield.m_field[ c_click[0], 0 : shape[1] ]
+            field_dim = minefield.dimensions()
+            col = minefield.m_field[ 0 : field_dim[0], c_click[1] ]
+            row = minefield.m_field[ c_click[0], 0 : field_dim[1] ]
             cross = np.append( col, row )
             for tile in cross:
-                if tile.is_mine() and not tile.is_flag():
-                    tile.flag()
-                else:
-                    minefield.open( tile.arr_coords() )
+                if not tile.is_flag():
+                    if tile.is_mine():
+                        tile.flag()
+                    else:
+                        minefield.open( tile.arr_coords() )
 
             minefield.display_field()
             return True
