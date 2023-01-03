@@ -28,19 +28,16 @@ class Minefield:
                 self.m_field[y_idx, x_idx] = Tile( c_tile, tile_dim )
 
     def height( self ) -> int:
-        return self.m_dim[0]
+        return self.m_field.shape[0]
+        #return self.m_dim[0]
 
     def width( self ) -> int:
-        return self.m_dim[1]
+        return self.m_field.shape[1]
+        #return self.m_dim[1]
 
     def dimensions( self ) -> tuple:
-        return self.m_dim
-
-    def mouse_pos_to_coords( self, mouse_pos : tuple ) -> tuple:
-        mouse_pos = mouse_pos[::-1]
-        y = ( mouse_pos[0] - OFFSET['y'] - OFFSET['t_y'] )//self.m_t_dim[0]
-        x = ( mouse_pos[1] - OFFSET['x'] - OFFSET['t_x'] )//self.m_t_dim[1] 
-        return ( y, x ) if 0 <= y < self.m_dim[0] and 0 <= x < self.m_dim[1] else OUT_OF_BOUNDS
+        return self.m_field.shape
+        #return self.m_dim
 
     def hide_mines( self, c_start_click : tuple ):
         for _ in range( self.m_num_of_mines ):
@@ -57,11 +54,19 @@ class Minefield:
 
     def display_field( self ):
         surface = pg.Surface( self.m_rect.size )
+        surface.fill( ( 100, 100, 100 ) )
+
         for row in self.m_field:
             for tile in row:
                 tile.display( surface )
-
+        
         self.m_window.blit( surface, ( OFFSET['x'], OFFSET['y'] ) )
+
+    def mouse_pos_to_coords( self, mouse_pos : tuple ) -> tuple:
+        mouse_pos = mouse_pos[::-1]
+        y = ( mouse_pos[0] - OFFSET['y'] - OFFSET['t_y'] )//self.m_t_dim[0]
+        x = ( mouse_pos[1] - OFFSET['x'] - OFFSET['t_x'] )//self.m_t_dim[1] 
+        return ( y, x ) if 0 <= y < self.m_dim[0] and 0 <= x < self.m_dim[1] else OUT_OF_BOUNDS
 
     def check_click( self, button : np.uint32, mouse_pos : tuple ) -> str:
         c_click = self.mouse_pos_to_coords( mouse_pos )
@@ -93,17 +98,16 @@ class Minefield:
         return neighbors
 
     def open( self, c_tile ) -> bool:
-        if not self.m_field[c_tile].is_flag():
-            if not self.m_field[c_tile].is_open():
-                self.flood_fill( c_tile )
-            else:
-                n_check = self.check_neighbors( c_tile )
-                if n_check == 'open':
-                    for neighbor in self.get_neighbors( c_tile ):
-                        if not neighbor.is_mine():
-                            self.flood_fill( neighbor.arr_coords() )
-                elif n_check == 'boom':
-                    return False
+        if not self.m_field[c_tile].is_open():
+            self.flood_fill( c_tile )
+        else:
+            n_check = self.check_neighbors( c_tile )
+            if n_check == 'open':
+                for neighbor in self.get_neighbors( c_tile ):
+                    if not neighbor.is_mine():
+                        self.flood_fill( neighbor.arr_coords() )
+            elif n_check == 'boom':
+                return False
         return True
 
     def flood_fill( self, c_tile : tuple ):
