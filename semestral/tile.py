@@ -80,24 +80,20 @@ class Tile:
                 win.blit(
                     pg.transform.scale( TILES[str( self.m_min_arnd )], self.m_dim[::-1] ), self.m_coords[::-1] )
 
-    def click( self ) -> tuple:
-        cursor_position = pg.mouse.get_pos()
-        if self.m_rect.collidepoint( cursor_position ):
-            return self.arr_coords()
-
-        return ( -1, -1 )
-
     def arr_coords( self ) -> tuple:
         return ( self.m_coords[0]//self.m_dim[0], self.m_coords[1]//self.m_dim[1] )
 
     def is_mine( self ) -> bool:
         return self.m_mine
 
-    def is_opened( self ) -> bool:
+    def is_open( self ) -> bool:
         return self.m_open
 
-    def is_flaged( self ) -> bool:
+    def is_flag( self ) -> bool:
         return self.m_flag
+
+    def mines_around( self ) -> int:
+        return self.m_min_arnd
 
     def add_mine( self ):
         self.m_mine = True
@@ -109,3 +105,6 @@ class Tile:
     def flag( self ):
         if not self.m_open:
             self.m_flag = not self.m_flag
+
+    def new_mine_neighbor( self ):
+        self.m_min_arnd += 1
