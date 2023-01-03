@@ -3,6 +3,8 @@ import numpy as np
 import pygame as pg
 from tile import Tile, OFFSET
 
+OUT_OF_BOUNDS = ( -1, -1 )
+
 class Minefield:
     def __init__( self,
                   dim : tuple, tile_dim : tuple,
@@ -34,6 +36,12 @@ class Minefield:
     def dimensions( self ) -> tuple:
         return self.m_dim
 
+    def mouse_pos_to_coords( self, mouse_pos : tuple ) -> tuple:
+        mouse_pos = mouse_pos[::-1]
+        y = ( mouse_pos[0] - OFFSET['y'] - OFFSET['t_y'] )//self.m_t_dim[0]
+        x = ( mouse_pos[1] - OFFSET['x'] - OFFSET['t_x'] )//self.m_t_dim[1] 
+        return ( y, x ) if 0 <= y < self.m_dim[0] and 0 <= x < self.m_dim[1] else OUT_OF_BOUNDS
+
     def hide_mines( self, c_start_click : tuple ):
         for _ in range( self.m_num_of_mines ):
             while True:
@@ -43,7 +51,7 @@ class Minefield:
 
             self.m_field[c_mine].add_mine()
             for neighbor in self.get_neighbors( c_mine ):
-                neighbor.m_min_arnd += 1
+                neighbor.new_mine_neighbor()
 
             self.m_mines.append( c_mine )
 
@@ -55,18 +63,11 @@ class Minefield:
 
         self.m_window.blit( surface, ( OFFSET['x'], OFFSET['y'] ) )
 
-    def check_click( self, button ) -> str:
-        for row in self.m_field:
-            for tile in row:
-                c_click = tile.click()
-                if c_click != ( -1, -1 ):
-                    break
-            else:
-                continue
-            break
+    def check_click( self, button : np.uint32, mouse_pos : tuple ) -> str:
+        c_click = self.mouse_pos_to_coords( mouse_pos )
 
-        if c_click != ( -1, -1 ):
-            if button == 1 and not self.m_field[c_click].is_flaged():
+        if c_click != OUT_OF_BOUNDS:
+            if button == 1 and not self.m_field[c_click].is_flag():
                 if len( self.m_mines ) == 0:
                     self.hide_mines( c_click )
                 if self.m_field[c_click].is_mine():
@@ -92,8 +93,8 @@ class Minefield:
         return neighbors
 
     def open( self, c_tile ) -> bool:
-        if not self.m_field[c_tile].is_flaged():
-            if not self.m_field[c_tile].is_opened():
+        if not self.m_field[c_tile].is_flag():
+            if not self.m_field[c_tile].is_open():
                 self.flood_fill( c_tile )
             else:
                 n_check = self.check_neighbors( c_tile )
@@ -110,20 +111,20 @@ class Minefield:
         queue.append( c_tile )
         visited.append( c_tile )
 
-        if self.m_field[c_tile].is_opened():
+        if self.m_field[c_tile].is_open():
             return
 
         self.m_field[c_tile].open()
 
-        if self.m_field[c_tile].m_min_arnd != 0:
+        if self.m_field[c_tile].mines_around() != 0:
             for neighbor in self.get_neighbors( c_tile ):
-                if not neighbor.is_mine() and neighbor.m_min_arnd == 0:
+                if not neighbor.is_mine() and neighbor.mines_around() == 0:
                     queue.append( neighbor.arr_coords() )
                     visited.append( neighbor.arr_coords() )
 
         while queue:
             c_exam_tile = queue.pop( 0 )
-            if self.m_field[c_exam_tile].m_min_arnd == 0:
+            if self.m_field[c_exam_tile].mines_around() == 0:
                 self.m_field[c_exam_tile].open()
             else:
                 continue
@@ -137,7 +138,7 @@ class Minefield:
 
     def has_nomine_neighbor( self, c_tile : tuple ) -> bool:
         for neighbor in self.get_neighbors( c_tile ):
-            if neighbor.m_min_arnd == 0:
+            if neighbor.mines_around() == 0:
                 return True
         return False
 
@@ -148,7 +149,7 @@ class Minefield:
     def are_safe_tiles_open( self ) -> bool:
         for row in self.m_field:
             for tile in row:
-                if not tile.is_opened() and not tile.is_mine():
+                if not tile.is_open() and not tile.is_mine():
                     return False
         return True
 
@@ -157,9 +158,9 @@ class Minefield:
         for neighbor in self.get_neighbors( c_tile ):
             if neighbor.is_mine():
                 mines += 1
-            if neighbor.is_flaged():
+            if neighbor.is_flag():
                 flaged += 1
-            if neighbor.is_mine() and neighbor.is_flaged():
+            if neighbor.is_mine() and neighbor.is_flag():
                 flaged_mines += 1
 
         if flaged == mines:
