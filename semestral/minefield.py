@@ -14,13 +14,12 @@ class Minefield:
         self.m_dim = dim
         self.m_t_dim  = tile_dim
         self.m_window = window
-        self.m_rect   = pg.Rect(
-                            ( OFFSET['x'], OFFSET['y'] ),
-                            ( dim[1]*tile_dim[1] + 2*OFFSET['t_x'],
-                              dim[0]*tile_dim[0] + 2*OFFSET['t_y'] ) )
+        self.m_surface = pg.Surface( ( dim[1]*tile_dim[1] + 2*OFFSET['t_x'],
+                                       dim[0]*tile_dim[0] + 2*OFFSET['t_y'] ), pg.SRCALPHA )
         self.m_field  = np.empty( [dim[0], dim[1]], dtype = Tile )
         self.m_mines  = []
         self.m_num_of_mines = num_of_mines
+        self.m_last_coords = OUT_OF_BOUNDS
 
         for y_idx in range( dim[0] ):
             for x_idx in range( dim[1] ):
@@ -29,15 +28,12 @@ class Minefield:
 
     def height( self ) -> int:
         return self.m_field.shape[0]
-        #return self.m_dim[0]
 
     def width( self ) -> int:
         return self.m_field.shape[1]
-        #return self.m_dim[1]
 
     def dimensions( self ) -> tuple:
         return self.m_field.shape
-        #return self.m_dim
 
     def hide_mines( self, c_start_click : tuple ):
         for _ in range( self.m_num_of_mines ):
@@ -52,15 +48,31 @@ class Minefield:
 
             self.m_mines.append( c_mine )
 
-    def display_field( self ):
-        surface = pg.Surface( self.m_rect.size )
-        surface.fill( ( 100, 100, 100 ) )
-
-        for row in self.m_field:
-            for tile in row:
-                tile.display( surface )
+    def show_cursor( self, color : tuple = ( 255, 0, 0, 50 ) ):
+        c_cursor = self.mouse_pos_to_coords( pg.mouse.get_pos() )
+        surface = pg.Surface( self.m_window.get_size(), pg.SRCALPHA )
+        if c_cursor != OUT_OF_BOUNDS and c_cursor != self.m_last_coords:
+            self.display_field( self.m_last_coords )
+            rect = self.m_field[c_cursor].m_rect
+            pg.draw.rect( surface, color, rect )            
+            self.m_window.blit( surface, ( 0, 0 ) )
+            self.m_last_coords = c_cursor
         
-        self.m_window.blit( surface, ( OFFSET['x'], OFFSET['y'] ) )
+        if c_cursor == OUT_OF_BOUNDS:
+            self.display_field( self.m_last_coords )
+            self.m_window.blit( surface, ( 0, 0 ) )
+
+    def display_field( self, coords = OUT_OF_BOUNDS ):
+        if coords == OUT_OF_BOUNDS:
+            self.m_surface.fill( ( 100, 100, 100, 255 ) )
+            for row in self.m_field:
+                for tile in row:
+                    tile.display( self.m_surface )
+        else:
+            self.m_surface.fill( ( 0, 0, 0, 0 ) )
+            self.m_field[coords].display( self.m_surface )
+        
+        self.m_window.blit( self.m_surface, ( OFFSET['x'], OFFSET['y'] ) )
 
     def mouse_pos_to_coords( self, mouse_pos : tuple ) -> tuple:
         mouse_pos = mouse_pos[::-1]
