@@ -8,7 +8,7 @@ import pygame as pg
 
 """offsets"""
 OFFSET = {
-    'x'   : 100,
+    'x'   : 10,
     'y'   : 100,
     't_x' : 10,
     't_y' : 10
@@ -82,6 +82,9 @@ class Tile:
 
     def arr_coords( self ) -> tuple:
         return ( self.m_coords[0]//self.m_dim[0], self.m_coords[1]//self.m_dim[1] )
+
+    def dimensions( self ) -> tuple:
+        return self.m_dim
 
     def is_mine( self ) -> bool:
         return self.m_mine
