@@ -2,15 +2,16 @@ import random as rd
 import pygame as pg
 import numpy as np
 from button import Button
-from minefield import Minefield, OUT_OF_BOUNDS
+from minefield import Minefield, OUT_OF_BOUNDS, random_bool
 from tile import OFFSET
 
 class Powerup( Button ):
-    def __init__( self, coords : tuple, dim : tuple, color : tuple, description : str = 'powerup' ):
+    def __init__( self, coords : tuple, dim : tuple, color : tuple, description : str = 'powerup', value = 0 ):
         super().__init__( coords, dim, color )
-        self.m_active = True
         self.m_description = description
         self.m_last_coords = OUT_OF_BOUNDS
+        self.m_value = value
+        self.deactivate()
 
     def __str__( self ) -> str:
         return self.m_description
@@ -19,9 +20,10 @@ class Powerup( Button ):
         self.m_active = False
         self.m_color  = ( 100, 100, 100 )
 
-    def activate( self ):
-        self.m_active = True
-        self.m_color  = self.m_default_color
+    def activate( self, tokens ):
+        if tokens >= self.m_value:
+            self.m_active = True
+            self.m_color  = self.m_default_color
 
     def apply_powerup( self, window, minefield : Minefield ) -> bool:
         print( self )
@@ -29,7 +31,7 @@ class Powerup( Button ):
 
 class SafeOpen( Powerup ):
     def __init__( self, coords : tuple, dim : tuple, color : tuple ):
-        super().__init__( coords, dim, color, 'SafeOpen: without risk reveal one tile' )
+        super().__init__( coords, dim, color, 'SafeOpen: without risk reveal one tile', 1 )
 
     def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
         print( self )
@@ -49,7 +51,7 @@ class SafeOpen( Powerup ):
 
 class OpenBubble( Powerup ):
     def __init__( self, coords : tuple, dim : tuple, color : tuple ):
-        super().__init__( coords, dim, color, 'OpenBubble: reveals random bubble, if there is one' )
+        super().__init__( coords, dim, color, 'OpenBubble: reveals random bubble, if there is one', 2 )
 
     def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
         print( self )
@@ -86,7 +88,7 @@ class OpenBubble( Powerup ):
 
 class CrossOpen( Powerup ):
     def __init__( self, coords : tuple, dim : tuple, color : tuple ):
-        super().__init__( coords, dim, color, 'CrossOpen: safely reveals tiles in a cross shape' )
+        super().__init__( coords, dim, color, 'CrossOpen: safely reveals tiles in a cross shape', 3 )
 
     def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
         print( self )
@@ -111,11 +113,8 @@ class CrossOpen( Powerup ):
 
 class FlagRandom( Powerup ):
     def __init__( self, coords : tuple, dim : tuple, color : tuple, mines : np.uint32 ):
-        super().__init__( coords, dim, color, 'FlagRandom: flags random mines' )
+        super().__init__( coords, dim, color, 'FlagRandom: flags random mines', 2 )
         self.m_mines = mines 
-
-    def random_bool( self, prob : int ):
-        return rd.random() < prob
 
     def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
         print( self )
@@ -131,7 +130,7 @@ class FlagRandom( Powerup ):
                 for idx in indexes:
                     non_flaged_mines[idx].flag()
 
-            boom_chance = self.random_bool( 0.1 )
+            boom_chance = random_bool( 0.1 )
             if boom_chance:
                 minefield.show_mines()
                 minefield.m_status = 'l'
