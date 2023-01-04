@@ -3,19 +3,36 @@ import pygame as pg
 import numpy as np
 from button import Button
 from minefield import Minefield, OUT_OF_BOUNDS
+from tile import OFFSET
 
 class Powerup( Button ):
-    def __init__( self, coords : tuple, dim : tuple, color : tuple ):
+    def __init__( self, coords : tuple, dim : tuple, color : tuple, description : str = 'powerup' ):
         super().__init__( coords, dim, color )
+        self.m_active = True
+        self.m_description = description
+        self.m_last_coords = OUT_OF_BOUNDS
 
-    def apply_powerup( self, minefield : Minefield ) -> bool:
+    def __str__( self ) -> str:
+        return self.m_description
+
+    def deactivate( self ):
+        self.m_active = False
+        self.m_color  = ( 100, 100, 100 )
+
+    def activate( self ):
+        self.m_active = True
+        self.m_color  = self.m_default_color
+
+    def apply_powerup( self, window, minefield : Minefield ) -> bool:
+        print( self )
         return False
 
-class Safe_Open( Powerup ):
+class SafeOpen( Powerup ):
     def __init__( self, coords : tuple, dim : tuple, color : tuple ):
-        super().__init__( coords, dim, color )
+        super().__init__( coords, dim, color, 'SafeOpen: without risk reveal one tile' )
 
-    def apply_powerup( self, minefield: Minefield ) -> bool:
+    def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
+        print( self )
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
             tile = minefield.m_field[c_click]
@@ -25,16 +42,17 @@ class Safe_Open( Powerup ):
                 else:
                     minefield.open( tile.arr_coords() )
 
-            minefield.display_field()    
+            minefield.display_field( window )
             return True
 
         return False
 
-class Open_Bubble( Powerup ):
+class OpenBubble( Powerup ):
     def __init__( self, coords : tuple, dim : tuple, color : tuple ):
-        super().__init__( coords, dim, color )
+        super().__init__( coords, dim, color, 'OpenBubble: reveals random bubble, if there is one' )
 
-    def apply_powerup( self, minefield: Minefield ) -> bool:
+    def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
+        print( self )
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
             check = 0
@@ -44,11 +62,14 @@ class Open_Bubble( Powerup ):
                         break
                 check += 1
 
-                c_tile = ( rd.randint( 0, minefield.height() - 1 ), rd.randint( 0, minefield.width() - 1 ) )
+                y_idx = rd.randint( 0, minefield.height() - 1 )
+                x_idx = rd.randint( 0, minefield.width() - 1 )
+                c_tile = ( y_idx, x_idx )
+
                 tile = minefield.m_field[c_tile]
                 if not tile.is_open() and not tile.is_mine() and tile.mines_around() == 0:
                     minefield.open( c_tile )
-                    minefield.display_field()
+                    minefield.display_field( window )
                     break
 
             return True
@@ -58,16 +79,17 @@ class Open_Bubble( Powerup ):
     def no_bubbles( self, minefield : Minefield ) -> bool:
         for row in minefield.m_field:
             for tile in row:
-                if not tile.is_open() and not tile.is_mine() and tile.mines_around() == 0: 
+                if not tile.is_open() and not tile.is_mine() and tile.mines_around() == 0:
                     return False
 
         return True
 
-class Cross_Open( Powerup ):
+class CrossOpen( Powerup ):
     def __init__( self, coords : tuple, dim : tuple, color : tuple ):
-        super().__init__( coords, dim, color )
+        super().__init__( coords, dim, color, 'CrossOpen: safely reveals tiles in a cross shape' )
 
-    def apply_powerup( self, minefield: Minefield ) -> bool:
+    def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
+        print( self )
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
             field_dim = minefield.dimensions()
@@ -81,7 +103,7 @@ class Cross_Open( Powerup ):
                     else:
                         minefield.open( tile.arr_coords() )
 
-            minefield.display_field()
+            minefield.display_field( window )
             return True
 
         return False
