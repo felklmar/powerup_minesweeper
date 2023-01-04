@@ -62,9 +62,9 @@ class OpenBubble( Powerup ):
                         break
                 check += 1
 
-                y_idx = rd.randint( 0, minefield.height() - 1 )
-                x_idx = rd.randint( 0, minefield.width() - 1 )
-                c_tile = ( y_idx, x_idx )
+                col = rd.randint( 0, minefield.height() - 1 )
+                row = rd.randint( 0, minefield.width() - 1 )
+                c_tile = ( col, row )
 
                 tile = minefield.m_field[c_tile]
                 if not tile.is_open() and not tile.is_mine() and tile.mines_around() == 0:
@@ -93,6 +93,7 @@ class CrossOpen( Powerup ):
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
             field_dim = minefield.dimensions()
+
             col = minefield.m_field[ 0 : field_dim[0], c_click[1] ]
             row = minefield.m_field[ c_click[0], 0 : field_dim[1] ]
             cross = np.append( col, row )
@@ -105,5 +106,37 @@ class CrossOpen( Powerup ):
 
             minefield.display_field( window )
             return True
+
+        return False
+
+class FlagRandom( Powerup ):
+    def __init__( self, coords : tuple, dim : tuple, color : tuple, mines : np.uint32 ):
+        super().__init__( coords, dim, color, 'FlagRandom: flags random mines' )
+        self.m_mines = mines 
+
+    def random_bool( self, prob : int ):
+        return rd.random() < prob
+
+    def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
+        print( self )
+        c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
+        if c_click != OUT_OF_BOUNDS:
+            non_flaged_mines = []
+            for mine in minefield.m_mines:
+                if not minefield.m_field[mine].is_flag():
+                    non_flaged_mines.append( minefield.m_field[mine] )
+
+            if len( non_flaged_mines ) > self.m_mines:
+                indexes = rd.sample( range( 0, len( non_flaged_mines ) ), self.m_mines )
+                for idx in indexes:
+                    non_flaged_mines[idx].flag()
+
+            boom_chance = self.random_bool( 0.1 )
+            if boom_chance:
+                minefield.show_mines()
+                minefield.m_status = 'l'
+
+            minefield.display_field( window )
+            return True    
 
         return False
