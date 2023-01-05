@@ -132,7 +132,7 @@ class FlagRandom( Powerup ):
 
             boom_chance = random_bool( 0.1 )
             if boom_chance:
-                minefield.show_mines()
+                minefield.open_mines()
                 minefield.m_status = 'l'
 
             minefield.display_field( window )
