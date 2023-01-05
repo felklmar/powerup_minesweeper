@@ -87,8 +87,9 @@ class OpenBubble( Powerup ):
         return True
 
 class CrossOpen( Powerup ):
-    def __init__( self, coords : tuple, dim : tuple, color : tuple ):
+    def __init__( self, coords : tuple, dim : tuple, color : tuple, cross_range ):
         super().__init__( coords, dim, color, 'CrossOpen: safely reveals tiles in a cross shape', 3 )
+        self.m_range = cross_range
 
     def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
         print( self )
@@ -96,14 +97,25 @@ class CrossOpen( Powerup ):
         if c_click != OUT_OF_BOUNDS:
             field_dim = minefield.dimensions()
 
-            col = minefield.m_field[ 0 : field_dim[0], c_click[1] ]
-            row = minefield.m_field[ c_click[0], 0 : field_dim[1] ]
+            min_y = max( 0, c_click[0] - self.m_range )
+            max_y = min( field_dim[1], c_click[0] + self.m_range + 1 )
+
+            min_x = max( 0, c_click[1] - self.m_range )
+            max_x = min( field_dim[1], c_click[1] + self.m_range + 1 )
+
+            #print( c_click, min_y, max_y, min_x, max_x )
+            col = minefield.m_field[ min_y : max_y, c_click[1] ]
+            row = minefield.m_field[ c_click[0], min_x : max_x ]
+
+            #col = minefield.m_field[ 0 : field_dim[0], c_click[1] ]
+            #row = minefield.m_field[ c_click[0], 0 : field_dim[1] ]
             cross = np.append( col, row )
             for tile in cross:
                 if not tile.is_flag():
                     if tile.is_mine():
                         tile.flag()
                     else:
+                        #tile.open()
                         minefield.open( tile.arr_coords() )
 
             minefield.display_field( window )
