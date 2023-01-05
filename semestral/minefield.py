@@ -9,11 +9,11 @@ def random_bool( prob : int ) -> bool:
     return rd.random() < prob
 
 class GameData:
-    def __init__( self, mines ):
+    def __init__( self, mines, tokens ):
         self.m_cursor = OUT_OF_BOUNDS
         self.m_status = 'r'
-        self.m_mines = mines
-        self.m_power_tokens = 0
+        self.m_mines, self.m_tokens = mines, tokens
+        self.m_tokens_coll = 0
 
 class Minefield:
     def __init__( self, init_data : dict ):
@@ -27,7 +27,7 @@ class Minefield:
 
         self.m_surface = self.init_surface()
         self.m_mines = []
-        self.m_field_data = GameData( init_data['mines'] )
+        self.m_field_data = GameData( init_data['mines'], init_data['tokens'] )
 
     def init_surface( self ) -> pg.Surface:
         surf_x = self.width()*self.tile_dimensions()[1] + 2*OFFSET['t_x']
@@ -50,9 +50,9 @@ class Minefield:
         return self.m_field_data.m_status
 
     def tokens( self ) -> np.uint32:
-        return self.m_field_data.m_power_tokens
+        return self.m_field_data.m_tokens_coll
 
-    def hide_mines( self, c_start_click : tuple ):
+    def hide_mines_and_tokens( self, c_start_click : tuple ):
         for _ in range( self.m_field_data.m_mines ):
             while True:
                 c_mine = ( rd.randint( 0, self.height() - 1 ), rd.randint( 0, self.width() - 1 ) )
@@ -64,6 +64,16 @@ class Minefield:
                 neighbor.new_mine_neighbor()
 
             self.m_mines.append( c_mine )
+        
+        print( self.m_field_data.m_tokens )
+        for _ in range( self.m_field_data.m_tokens ):
+            while True:
+                c_token = ( rd.randint( 0, self.height() - 1 ), rd.randint( 0, self.width() - 1 ) )
+                if not self.m_field[c_token].is_mine() and not self.m_field[c_token].is_token():
+                    break
+            
+            print( c_token )
+            self.m_field[c_token].add_token()
 
     def show_cursor( self, window : pg.Surface, color : tuple = ( 255, 0, 0, 50 ) ):
         c_cursor = self.mouse_pos_to_coords( pg.mouse.get_pos() )
@@ -106,7 +116,7 @@ class Minefield:
         if c_click != OUT_OF_BOUNDS:
             if button == 1 and not self.m_field[c_click].is_flag():
                 if len( self.m_mines ) == 0:
-                    self.hide_mines( c_click )
+                    self.hide_mines_and_tokens( c_click )
                 if not self.open( c_click ):
                     self.open_mines()
                 if self.are_safe_tiles_open():
@@ -163,7 +173,9 @@ class Minefield:
         if self.m_field[c_tile].is_open():
             return
 
-        self.m_field[c_tile].open()
+        if self.m_field[c_tile].open():
+            #self.m_field_data.m_tokens_coll += 1
+            self.add_powerup_token( 1 )
 
         if self.m_field[c_tile].mines_around() != 0:
             for neighbor in self.get_neighbors( c_tile ):
@@ -174,15 +186,18 @@ class Minefield:
         while queue:
             c_exam_tile = queue.pop( 0 )
             if self.m_field[c_exam_tile].mines_around() == 0:
-                self.m_field[c_exam_tile].open()
-                self.add_powerup_token( 1 )
+                if self.m_field[c_exam_tile].open():
+                    #self.m_field_data.m_tokens_coll += 1
+                    self.add_powerup_token( 1 )
             else:
                 continue
 
             for neighbor in self.get_neighbors( c_exam_tile ):
                 if not neighbor.arr_coords() in visited:
                     if self.has_nomine_neighbor( neighbor.arr_coords() ):
-                        neighbor.open()
+                        if neighbor.open():
+                            #self.m_field_data.m_tokens_coll += 1
+                            self.add_powerup_token( 1 )
                     queue.append( neighbor.arr_coords() )
                     visited.append( neighbor.arr_coords() )
 
@@ -207,8 +222,4 @@ class Minefield:
         return True
 
     def add_powerup_token( self, how_much : int ):
-        token_chance = random_bool( 0.05 )
-        if how_much < 0:
-            self.m_field_data.m_power_tokens += how_much
-        elif token_chance:
-            self.m_field_data.m_power_tokens += how_much
+        self.m_field_data.m_tokens_coll += how_much
