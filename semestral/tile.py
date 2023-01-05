@@ -44,9 +44,12 @@ class Tile:
         self.m_coords = coords
         self.m_dim  = dim
         self.m_rect = pg.Rect( ( coords[1] + OFFSET['x'], coords[0] + OFFSET['y'] ), dim[::-1] )
-        self.m_open = False
-        self.m_flag = False
-        self.m_mine = False
+        self.m_status = {
+            'open'  : False,
+            'flag'  : False,
+            'mine'  : False,
+            'token' : False
+        }
         self.m_min_arnd = 0
 
     def __str__( self ) -> str:
@@ -65,15 +68,15 @@ class Tile:
         Args:
             win (pg.Surface): pygame window/surface on which tile should display
         """
-        if not self.m_open:
-            if self.m_flag:
+        if not self.is_open():
+            if self.is_flag():
                 win.blit(
                     pg.transform.scale( TILES['flag'], self.m_dim[::-1] ), self.m_coords[::-1] )
             else:
                 win.blit(
                     pg.transform.scale( TILES['unopened'], self.m_dim[::-1] ), self.m_coords[::-1] )
         else:
-            if self.m_mine:
+            if self.is_mine():
                 win.blit(
                     pg.transform.scale( TILES['mine'], self.m_dim[::-1] ), self.m_coords[::-1] )
             else:
@@ -87,27 +90,36 @@ class Tile:
         return self.m_dim
 
     def is_mine( self ) -> bool:
-        return self.m_mine
+        return self.m_status['mine']
+
+    def is_token( self ) -> bool:
+        return self.m_status['token']
 
     def is_open( self ) -> bool:
-        return self.m_open
+        return self.m_status['open']
 
     def is_flag( self ) -> bool:
-        return self.m_flag
+        return self.m_status['flag']
 
     def mines_around( self ) -> int:
         return self.m_min_arnd
 
     def add_mine( self ):
-        self.m_mine = True
+        self.m_status['mine'] = True
 
-    def open( self ):
-        if not self.m_open and not self.m_flag:
-            self.m_open = True
+    def add_token( self ):
+        self.m_status['token'] = True
+
+    def open( self ) -> bool:
+        if not self.is_open() and not self.is_flag():
+            self.m_status['open'] = True
+            return self.m_status['token']
+
+        return False
 
     def flag( self ):
-        if not self.m_open:
-            self.m_flag = not self.m_flag
+        if not self.is_open():
+            self.m_status['flag'] = not self.m_status['flag']
 
     def new_mine_neighbor( self ):
         self.m_min_arnd += 1
