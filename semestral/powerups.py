@@ -2,12 +2,16 @@ import random as rd
 import pygame as pg
 import numpy as np
 from button import Button
-from minefield import Minefield, OUT_OF_BOUNDS, random_bool
-from tile import OFFSET
+from minefield import Minefield, OUT_OF_BOUNDS
+
+def random_bool( prob : int ) -> bool:
+    return rd.random() < prob
 
 class Powerup( Button ):
-    def __init__( self, coords : tuple, dim : tuple, color : tuple, description : str = 'powerup', value = 0 ):
-        super().__init__( coords, dim, color )
+    def __init__( self, coords : tuple, color : tuple, description : list, value = 0 ):
+        text = [ pg.font.Font( 'assets/Monocraft.otf', 17 ), description[0][0], description[0][1]  ]
+        super().__init__( coords, color, text )
+
         self.m_description = description
         self.m_last_coords = OUT_OF_BOUNDS
         self.m_value = value
@@ -17,24 +21,19 @@ class Powerup( Button ):
         return self.m_description
 
     def deactivate( self ):
-        self.m_active = False
         self.m_color  = ( 100, 100, 100 )
 
     def activate( self, tokens ):
         if tokens >= self.m_value:
-            self.m_active = True
-            self.m_color  = self.m_default_color
-
-    def apply_powerup( self, window, minefield : Minefield ) -> bool:
-        print( self )
-        return False
+            self.m_color = self.m_default_color
 
 class SafeOpen( Powerup ):
-    def __init__( self, coords : tuple, dim : tuple, color : tuple ):
-        super().__init__( coords, dim, color, 'SafeOpen: without risk reveal one tile', 1 )
+    def __init__( self, coords : tuple, color : tuple, value ):
+        description = [ [ 'SafeOpen', 'SafeOpen' ] , 'without risk reveal one tile' ]
+        super().__init__( coords, color, description, value )
 
     def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
-        print( self )
+        #print( self )
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
             tile = minefield.m_field[c_click]
@@ -50,17 +49,18 @@ class SafeOpen( Powerup ):
         return False
 
 class OpenBubble( Powerup ):
-    def __init__( self, coords : tuple, dim : tuple, color : tuple ):
-        super().__init__( coords, dim, color, 'OpenBubble: reveals random bubble, if there is one', 2 )
+    def __init__( self, coords : tuple, color : tuple, value ):
+        description = [ [ 'OpenBubble', 'OpenBubble' ], 'Reveals random bubble, if there is one' ]
+        super().__init__( coords, color, description, value )
 
     def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
-        print( self )
+        #print( self )
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
             check = 0
             while True:
                 if check % minefield.m_field.size == 0:
-                    if self.no_bubbles( minefield ):
+                    if minefield.no_bubbles():
                         break
                 check += 1
 
@@ -78,21 +78,14 @@ class OpenBubble( Powerup ):
 
         return False
 
-    def no_bubbles( self, minefield : Minefield ) -> bool:
-        for row in minefield.m_field:
-            for tile in row:
-                if not tile.is_open() and not tile.is_mine() and tile.mines_around() == 0:
-                    return False
-
-        return True
-
 class CrossOpen( Powerup ):
-    def __init__( self, coords : tuple, dim : tuple, color : tuple, cross_range ):
-        super().__init__( coords, dim, color, 'CrossOpen: safely reveals tiles in a cross shape', 3 )
+    def __init__( self, coords : tuple, color : tuple, value, cross_range ):
+        description = [ [ 'CrossOpen', 'CrossOpen' ], 'safely reveals tiles in a cross shape' ]
+        super().__init__( coords, color, description, value )
         self.m_range = cross_range
 
     def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
-        print( self )
+        #print( self )
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
             field_dim = minefield.dimensions()
@@ -124,12 +117,13 @@ class CrossOpen( Powerup ):
         return False
 
 class FlagRandom( Powerup ):
-    def __init__( self, coords : tuple, dim : tuple, color : tuple, mines : np.uint32 ):
-        super().__init__( coords, dim, color, 'FlagRandom: flags random mines', 2 )
-        self.m_mines = mines 
+    def __init__( self, coords : tuple, color : tuple, value, mines : np.uint32 ):
+        description = [ [ 'FlagRandom', 'FlagRandom' ], 'flags random mines' ]
+        super().__init__( coords, color, description, value )
+        self.m_mines = mines
 
     def apply_powerup( self, window : pg.Surface, minefield: Minefield ) -> bool:
-        print( self )
+        #print( self )
         c_click = minefield.mouse_pos_to_coords( pg.mouse.get_pos() )
         if c_click != OUT_OF_BOUNDS:
             non_flaged_mines = []
@@ -148,6 +142,6 @@ class FlagRandom( Powerup ):
                 minefield.m_status = 'l'
 
             minefield.display_field( window )
-            return True    
+            return True
 
         return False

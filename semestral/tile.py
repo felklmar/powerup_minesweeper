@@ -8,17 +8,17 @@ import pygame as pg
 
 """offsets"""
 OFFSET = {
-    'x'   : 10,
-    'y'   : 100,
-    't_x' : 10,
-    't_y' : 10
+    'x'   : 200,
+    'y'   : 10,
+    't_x' : 5,
+    't_y' : 5
 }
 
 """Dictionary for tile sprites"""
 TILES = {
     'unopened' : pg.image.load( 'assets/unopened.svg' ),
     'flag' : pg.image.load( 'assets/flag.svg' ),
-    'mine' : pg.image.load( 'assets/mine.svg' ),
+    'mine' : pg.image.load( 'assets/mine.jpeg' ),
     '0' : pg.image.load( 'assets/0.svg' ),
     '1' : pg.image.load( 'assets/1.svg' ),
     '2' : pg.image.load( 'assets/2.svg' ),
@@ -84,7 +84,9 @@ class Tile:
                     pg.transform.scale( TILES[str( self.m_min_arnd )], self.m_dim[::-1] ), self.m_coords[::-1] )
 
     def arr_coords( self ) -> tuple:
-        return ( self.m_coords[0]//self.m_dim[0], self.m_coords[1]//self.m_dim[1] )
+        col = ( self.m_coords[0] - OFFSET['t_y'] )//self.m_dim[0]
+        row = ( self.m_coords[1] - OFFSET['t_x'] )//self.m_dim[1]
+        return ( col, row )
 
     def dimensions( self ) -> tuple:
         return self.m_dim
@@ -117,9 +119,11 @@ class Tile:
 
         return False
 
-    def flag( self ):
+    def flag( self ) -> bool:
         if not self.is_open():
             self.m_status['flag'] = not self.m_status['flag']
+
+        return self.is_flag()
 
     def new_mine_neighbor( self ):
         self.m_min_arnd += 1

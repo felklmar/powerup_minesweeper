@@ -1,18 +1,34 @@
 import pygame as pg
 
 class Button:
-    def __init__( self, coords : tuple, dim : tuple, color : tuple ):
+    def __init__( self, coords : tuple, color : tuple, text : list ):
         self.m_coords = coords
-        self.m_dim    = dim 
         self.m_color, self.m_default_color = color, color
-        self.m_rect   = pg.Rect( coords[::-1], dim[::-1] )
+        text_render = text[0].render( text[2], False, (0,0,0) )
+        self.m_rect = text_render.get_rect()
+        self.m_rect.topleft = coords[::-1]
+        #self.m_rect = pg.Rect( coords[::-1], dim[::-1] )
+        #self.m_text = text['font'].render(text['text'], False, self.m_color )
+        self.m_text = text
+
+    def name( self ) -> str:
+        return self.m_text[1]
+
+    def text( self ) -> str:
+        return self.m_text[2]
 
     def display( self, window : pg.Surface ):
-        pg.draw.rect( window, self.m_color, self.m_rect )
+        text = self.m_text[0].render( self.m_text[2], False, self.m_color )
+        text_rect = text.get_rect()
+        text_rect.center = self.m_rect.center
+        #self.m_rect.size = ( text_rect.size[0] + 5, text_rect.size[1] + 5 )  
+        #pg.draw.rect( window, self.m_color, self.m_rect )
+        window.blit( text, text_rect )
 
     def is_cursor_on( self ) -> bool:
-        cursor_position = pg.mouse.get_pos()
-        return True if self.m_active and self.m_rect.collidepoint( cursor_position ) else False
+        return self.m_rect.collidepoint( pg.mouse.get_pos() )
+        #cursor_position = pg.mouse.get_pos()
+        #return True if self.m_active and self.m_rect.collidepoint( cursor_position ) else False
     
     def change_color( self, color : tuple ):
         self.m_color = color
