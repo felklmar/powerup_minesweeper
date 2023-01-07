@@ -1,34 +1,10 @@
 """
 Module that represents one tile of minefield
 --------------------------------------------
-Contains dictionary TILES, which is used for pictures of tiles
-and class Tile, which contains all necessary information
+Contains class Tile, which represents and control one tile of the minefield
 """
 import pygame as pg
-
-"""offsets"""
-OFFSET = {
-    'x'   : 200,
-    'y'   : 10,
-    't_x' : 5,
-    't_y' : 5
-}
-
-"""Dictionary for tile sprites"""
-TILES = {
-    'unopened' : pg.image.load( 'assets/unopened.svg' ),
-    'flag' : pg.image.load( 'assets/flag.svg' ),
-    'mine' : pg.image.load( 'assets/mine.jpeg' ),
-    '0' : pg.image.load( 'assets/0.svg' ),
-    '1' : pg.image.load( 'assets/1.svg' ),
-    '2' : pg.image.load( 'assets/2.svg' ),
-    '3' : pg.image.load( 'assets/3.svg' ),
-    '4' : pg.image.load( 'assets/4.svg' ),
-    '5' : pg.image.load( 'assets/5.svg' ),
-    '6' : pg.image.load( 'assets/6.svg' ),
-    '7' : pg.image.load( 'assets/7.svg' ),
-    '8' : pg.image.load( 'assets/8.svg' )
-}
+from utilities import OFFSET, TILES
 
 class Tile:
     """Class representing one tile of minefield"""
@@ -48,6 +24,7 @@ class Tile:
             'open'  : False,
             'flag'  : False,
             'mine'  : False,
+            'boom'  : False,
             'token' : False
         }
         self.m_min_arnd = 0
@@ -71,17 +48,21 @@ class Tile:
         if not self.is_open():
             if self.is_flag():
                 win.blit(
-                    pg.transform.scale( TILES['flag'], self.m_dim[::-1] ), self.m_coords[::-1] )
+                    pg.transform.smoothscale( TILES['flag'], self.m_dim[::-1] ), self.m_coords[::-1] )
             else:
                 win.blit(
-                    pg.transform.scale( TILES['unopened'], self.m_dim[::-1] ), self.m_coords[::-1] )
+                    pg.transform.smoothscale( TILES['closed'], self.m_dim[::-1] ), self.m_coords[::-1] )
         else:
             if self.is_mine():
-                win.blit(
-                    pg.transform.scale( TILES['mine'], self.m_dim[::-1] ), self.m_coords[::-1] )
+                if self.is_boom():
+                    win.blit(
+                        pg.transform.smoothscale( TILES['boom'], self.m_dim[::-1] ), self.m_coords[::-1] )
+                else:
+                    win.blit(
+                        pg.transform.smoothscale( TILES['mine'], self.m_dim[::-1] ), self.m_coords[::-1] )
             else:
                 win.blit(
-                    pg.transform.scale( TILES[str( self.m_min_arnd )], self.m_dim[::-1] ), self.m_coords[::-1] )
+                    pg.transform.smoothscale( TILES[str( self.m_min_arnd )], self.m_dim[::-1] ), self.m_coords[::-1] )
 
     def arr_coords( self ) -> tuple:
         col = ( self.m_coords[0] - OFFSET['t_y'] )//self.m_dim[0]
@@ -93,6 +74,9 @@ class Tile:
 
     def is_mine( self ) -> bool:
         return self.m_status['mine']
+
+    def is_boom( self ) -> bool:
+        return self.m_status['boom']
 
     def is_token( self ) -> bool:
         return self.m_status['token']
@@ -111,6 +95,9 @@ class Tile:
 
     def add_token( self ):
         self.m_status['token'] = True
+
+    def boom( self ):
+        self.m_status['boom'] = True
 
     def open( self ) -> bool:
         if not self.is_open() and not self.is_flag():

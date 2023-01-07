@@ -2,9 +2,8 @@ import random as rd
 import numpy as np
 import pygame as pg
 import time as t
-from tile import Tile, OFFSET
-
-OUT_OF_BOUNDS = ( -1, -1 )
+from tile import Tile
+from utilities import OFFSET, OUT_OF_BOUNDS, COLORS, FONT
 
 class GameData:
     def __init__( self, mines, tokens ):
@@ -20,19 +19,19 @@ class GameData:
         self.m_time = 0
         self.m_running = False
 
-    def display( self, window ):
-        font = pg.font.Font( 'assets/Monocraft.otf', 17 )
+    def display( self, window : pg.Surface ):
+        font = pg.font.Font( FONT, 17 )
         strings = []
         strings.append( f"FLAGS: { str( self.m_data['mines'] - self.m_data['flags'] ) }" )
         strings.append( f"TOKENS: { str( self.m_data['coll'] ) }" )
         strings.append( f"TIME: { str( self.m_time ) }" )
-        clear_surf = pg.Surface( ( 150, 80 ) )
-        window.blit( clear_surf, ( 15, 15 ) )
-        height = 15
+        #height = window.get_height()/2 - 80
+        height = OFFSET['y'] + OFFSET['t_y']
+        pg.draw.rect( window, COLORS['background'], pg.Rect( ( 45, height ), ( 130, 70 ) ) )
         for string in strings:
-            text = font.render( string, False, ( 255, 255, 255 ) ) 
+            text = font.render( string, True, COLORS['text'] ) 
             t_rect = text.get_rect()
-            t_rect.topleft = ( 15, height )
+            t_rect.topleft = ( 50, height )
             height += 20
             window.blit( text, t_rect )
 
@@ -43,7 +42,6 @@ class GameData:
     def stop_timer( self ):
         self.m_running = False
         self.m_start_time = t.time() - self.m_start_time
-        print( self.m_time ) 
 
 class Minefield:
     def __init__( self, init_data : dict ):
@@ -95,17 +93,15 @@ class Minefield:
 
             self.m_mines.append( c_mine )
         
-        #print( self.m_field_data.m_tokens )
         for _ in range( self.m_field_data.m_data['tokens'] ):
             while True:
                 c_token = ( rd.randint( 0, self.height() - 1 ), rd.randint( 0, self.width() - 1 ) )
                 if not self.m_field[c_token].is_token():
                     break
 
-            #print( c_token )
             self.m_field[c_token].add_token()
 
-    def show_cursor( self, window : pg.Surface, color : tuple = ( 255, 0, 0, 50 ) ):
+    def show_cursor( self, window : pg.Surface, color : tuple = COLORS['cursor'] ):
         c_cursor = self.mouse_pos_to_coords( pg.mouse.get_pos() )
         surface = pg.Surface( window.get_size(), pg.SRCALPHA )
         if c_cursor not in ( OUT_OF_BOUNDS, self.m_field_data.m_cursor ):
@@ -134,13 +130,13 @@ class Minefield:
                 for tile in row:
                     tile.display( self.m_surface )
         else:
-            self.m_surface.fill( ( 0, 0, 0, 0 ) )
+            #self.m_surface.fill( ( 0, 0, 0, 0 ) )
             self.m_field[c_tile].display( self.m_surface )
 
         window.blit( self.m_surface, ( OFFSET['x'], OFFSET['y'] ) )
         self.display_game_data( window, True )
 
-    def check_click( self, button : np.uint32, mouse_pos : tuple ):
+    def check_click( self, button : np.uint32, mouse_pos : tuple ) -> bool:
         c_click = self.mouse_pos_to_coords( mouse_pos )
         
         if c_click != OUT_OF_BOUNDS:
@@ -150,17 +146,20 @@ class Minefield:
                     self.hide_mines_and_tokens( c_click )
                 if not self.open( c_click ):
                     self.m_field_data.stop_timer()
-                    self.m_field_data.m_status = 'l'
+                    self.m_field[c_click].boom()
                     self.open_mines()
-                if self.__are_safe_tiles_open():
+                    return 'l'
+                if not self.open( c_click ) or self.__are_safe_tiles_open():
                     self.m_field_data.stop_timer()
                     self.open_mines()
-                    self.m_field_data.m_status = 'w'
+                    return 'w'
             if button == 3:
                 if self.m_field[c_click].flag():
                     self.m_field_data.m_data['flags'] += 1
                 else:
                     self.m_field_data.m_data['flags'] -= 1
+
+        return 'r'
 
     def __get_neighbors( self, c_tile : tuple ) -> np.array:
         neighbors = self.m_field[
