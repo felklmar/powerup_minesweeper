@@ -1,17 +1,15 @@
 """
-Minesweeper
------------
+__Minesweeper__
 Module containing main function that runs minesweeper
 """
 import pygame as pg
 from game import Game
 from menu import Menu
-from utilities import WIDTH, HEIGHT, BACK_COLOR, TILE_DIM
+from utilities import WIDTH, HEIGHT, TILE_DIM, COLORS
 
 def main():
     """
-    Main application loop
-    ---------------------
+    __Main application loop__
     Firstly initialize pygame and creates pygame window,
     then starts running an endless cycle, where it calls other
     classes and methods
@@ -33,7 +31,7 @@ def main():
                     running = False
 
             if not game_running:
-                window.fill( BACK_COLOR )
+                window.fill( COLORS['background'] )
                 menu.display()
                 click = menu.click( event )
                 if click == 'end':
@@ -46,8 +44,8 @@ def main():
                             'mines' : menu.mines(),
                             'tokens' : menu.tokens()
                         }
-                    game = Game( menu.tokens(), game_data, window )
-                    window.fill( BACK_COLOR )
+                    game = Game( game_data )
+                    window.fill( COLORS['background'] )
                     game_running = True
             else:
                 game_running = game.game_loop( event )
