@@ -9,10 +9,7 @@ from button import Button
 from utilities import HEIGHT, WIDTH, FONT, MIN, MAX, DEF_DIFFIC, DIFFIC
 
 class Menu:
-    """
-    __Class representing and handling menu__\n
-    Basically what is writen in module docstring on the top
-    """
+    """Class representing app/game menu"""
     def __init__( self, window : pg.Surface, def_diff : int = DEF_DIFFIC ):
         """
         __Constructor for class instance__
@@ -53,20 +50,20 @@ class Menu:
         self.m_powerups = False
         self.m_window = pg.display.set_mode( ( WIDTH, HEIGHT ) )
 
-    def height( self ):
-        """Returns the height of field"""
+    def height( self ) -> int:
+        """Returns: int: the height of field"""
         return self.m_game_settings[0]
 
-    def width( self ):
-        """Returns the width of field"""
+    def width( self ) -> int:
+        """Returns: int: the width of field"""
         return self.m_game_settings[1]
 
-    def mines( self ):
-        """Returns the number of mines that will be in game"""
+    def mines( self ) -> int:
+        """Returns: int: the number of mines that will be in game"""
         return self.m_game_settings[2]
 
-    def tokens( self ):
-        """Returns the number of powerup tokens that will be in game"""
+    def tokens( self ) -> int:
+        """Returns: int: the number of powerup tokens that will be in game"""
         return self.m_game_settings[3]
 
     def __display_text( self, to_display : str, coords : tuple, t_color : tuple ):

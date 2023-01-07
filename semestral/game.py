@@ -10,7 +10,7 @@ from button import Button
 from utilities import OFFSET, NO_POWERUP, COLORS, FONT
 
 class Game:
-    """Same description as in module docstring"""
+    """Class representing one minesweeper game"""
     def __init__( self, settings : dict ):
         """
         __Constructor for class instance__\n
