@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="21.608334mm"
+   height="21.608337mm"
+   viewBox="0 0 21.608334 21.608337"
+   version="1.1"
+   id="svg5"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2">
+    <rect
+       x="145.1485"
+       y="367.94696"
+       width="27.345802"
+       height="54.739616"
+       id="rect452-6-1-9-6" />
+  </defs>
+  <g
+     id="layer1"
+     transform="translate(-8.1188786,-54.801222)">
+    <g
+       id="g1834-2-3-2"
+       transform="matrix(0.28069511,0,0,0.28069511,-19.826254,51.84958)">
+      <rect
+         style="display:inline;fill:#550000;stroke:#acacac;stroke-width:5.34388;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         id="rect1168-2-7-6-6"
+         width="71.637634"
+         height="71.637634"
+         x="102.22883"
+         y="13.187407" />
+      <g
+         aria-label="5"
+         transform="matrix(1.8081002,0,0,1.8081002,-144.98606,-655.36521)"
+         id="text450-9-0-0-1"
+         style="font-size:40px;font-family:'NT Wagner';-inkscape-font-specification:'NT Wagner';white-space:pre;shape-inside:url(#rect452-6-1-9-6);display:inline;fill:#e9afaf;stroke-width:5.66929;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke markers fill">
+        <path
+           d="m 156.26844,385.00438 c -1.76,0.08 -3.12,0.68 -4.24,1.24 -0.44,0.2 -0.96,0.12 -0.84,-0.6 l 0.4,-3.28 c 0.08,-0.56 0.24,-1 1.12,-1 h 11.68 c 0.96,0 1.68,-0.76 1.68,-1.68 v -2.64 c 0,-0.92 -0.72,-1.68 -1.68,-1.68 h -13.56 c -1.48,0 -1.76,0.68 -1.88,1.64 l -1.48,10.96 c -0.08,1 -0.64,2.44 0.96,2.44 1.08,0 2.4,-1.52 5.24,-1.96 3.24,-0.52 5.12,2.6 5.12,6.4 0,3.6 -1.08,5.88 -3.68,5.88 -3.88,0 -2.08,-5 -6.44,-5 -1.24,0 -2.16,0.72 -2.56,1.8 -0.92,2.64 2.64,6.24 8.76,6.24 6.68,0 12.24,-3.6 12.24,-9.64 0,-5.4 -4,-9.56 -10.84,-9.12 z"
+           id="path3358" />
+      </g>
+    </g>
+  </g>
+</svg>

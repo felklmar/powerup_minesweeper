@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="21.60833mm"
+   height="21.608334mm"
+   viewBox="0 0 21.60833 21.608334"
+   version="1.1"
+   id="svg5"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2">
+    <rect
+       x="145.1485"
+       y="367.94696"
+       width="24.111588"
+       height="50.907734"
+       id="rect452-6" />
+  </defs>
+  <g
+     id="layer1"
+     transform="translate(-30.788254,-9.112417)">
+    <g
+       id="g1834"
+       transform="matrix(0.28069511,0,0,0.28069511,2.8431221,6.1607769)">
+      <rect
+         style="display:inline;fill:#217821;stroke:#acacac;stroke-width:5.34388;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         id="rect1168-2"
+         width="71.637634"
+         height="71.637634"
+         x="102.22883"
+         y="13.187407" />
+      <g
+         aria-label="2"
+         transform="matrix(1.8081002,0,0,1.8081002,-145.64266,-654.64197)"
+         id="text450-9"
+         style="font-size:40px;font-family:'NT Wagner';-inkscape-font-specification:'NT Wagner';white-space:pre;shape-inside:url(#rect452-6);display:inline;fill:#ffffff;stroke-width:5.66929;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke markers fill">
+        <path
+           d="m 166.18844,393.60438 c -1.6,0 -2.32,1.36 -3,2.6 -0.4,0.8 -1.04,1.36 -2.72,1.36 h -6.24 c -0.68,0 -0.52,-0.44 -0.4,-0.84 0.96,-3.96 11.52,-4.96 13.24,-13 0.92,-4.28 -1.84,-8.76 -9.96,-8.76 -3.4,0 -8.2,1.32 -9.44,5.36 -0.52,1.76 0.2,3.2 1.44,3.68 2.08,0.76 4.4,0.08 4.84,-2.68 0.44,-3 1.92,-3.32 2.8,-3.32 1.04,0 1.8,0.68 2.08,1.88 0.24,0.96 0.24,2.08 -0.04,2.88 -1.84,5.6 -12.24,8.24 -12.24,18.32 0,1.24 0.16,2.28 2.16,2.28 h 15.68 c 1.16,0 1.68,-0.4 1.88,-1.6 0.2,-1.04 0.88,-6.44 0.92,-6.56 0.28,-1.44 -0.44,-1.6 -1,-1.6 z"
+           id="path3046"
+           style="fill:#d7f4d7" />
+      </g>
+    </g>
+  </g>
+</svg>
