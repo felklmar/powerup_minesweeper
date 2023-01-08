@@ -192,7 +192,6 @@ def test_minefield_tile_opening( minefield, mines, tokens, bubbles ):
 
     # test open tile neighbors opening
     click = ( 0, 3 )
-    assert minefield._Minefield__has_nomine_neighbor( click ) is True
     assert minefield._Minefield__check_neighbors( click ) == 'ok'
     assert minefield.m_field[1,4].flag() is True
     assert minefield._Minefield__check_neighbors( click ) == 'open'
@@ -204,7 +203,6 @@ def test_minefield_tile_opening( minefield, mines, tokens, bubbles ):
         if tile.is_open():
             assert idx in open_tiles
     click = ( 4, 4 )
-    assert minefield._Minefield__has_nomine_neighbor( click ) is False
     assert minefield.open( click ) is True
     assert minefield.m_field[3, 4].flag() is True
     assert minefield.m_field[3, 4].flag() is False
