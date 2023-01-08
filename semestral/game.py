@@ -13,16 +13,18 @@ class Game:
     """Class representing one minesweeper game"""
     def __init__( self, settings : dict ):
         """
-        __Constructor for class instance__\n
-        Creates new instance and initialize everything required,
-        that means game window, minefield, powerups and buttons\n
+        Initializes class instance\n
         Args:
             settings (dict): game setings ( size of minefield, number of mines and tokens )
         """
         self.m_status = True                        # game status ( T - running or F - win/loss )
         self.m_settings = settings                  # game settings data
-        self.m_minefield = Minefield( settings )    # minefield
         self.m_active_powerup = NO_POWERUP          # index of currently picked to use powerup
+        offset = {
+            'f' : ( OFFSET['y'], OFFSET['x'] ),
+            't' : ( OFFSET['t_y'], OFFSET['t_x'] )
+        }
+        self.m_minefield = Minefield( settings, offset )  # minefield
 
         # pygame window
         self.m_window = self.__init_window( settings['dim'], settings['tile_dim'] )
@@ -53,10 +55,10 @@ class Game:
             tuple: tuple of powerups
         """
         height = OFFSET['y'] + OFFSET['t_y'] + 80
-        return ( SafeOpen(   ( height     , 50 ), COLORS['t_basic'], 1     ),
-                 OpenBubble( ( height + 25, 50 ), COLORS['t_basic'], 2     ),
-                 FlagRandom( ( height + 50, 50 ), COLORS['t_basic'], 2, 10 ),
-                 CrossOpen(  ( height + 75, 50 ), COLORS['t_basic'], 3,  2 ) )
+        return ( SafeOpen(   ( height     , 50 ), COLORS['t_basic'], 1    ),
+                 OpenBubble( ( height + 25, 50 ), COLORS['t_basic'], 2    ),
+                 FlagRandom( ( height + 50, 50 ), COLORS['t_basic'], 2, 7 ),
+                 CrossOpen(  ( height + 75, 50 ), COLORS['t_basic'], 3, 2 ) )
 
     @staticmethod
     def __init_buttons() -> tuple:
@@ -68,14 +70,18 @@ class Game:
         btn_end = [ pg.font.Font( FONT, 17 ), 'end', 'E' ]
         btn_res = [ pg.font.Font( FONT, 17 ), 'res', 'R' ]
         height = OFFSET['y'] + OFFSET['t_y']
-        return ( Button( ( height     , 15 ), COLORS['t_basic'], btn_end ),
-                 Button( ( height + 20, 15 ), COLORS['t_basic'], btn_res ) )
+        return ( Button( ( height     , 15 ), COLORS['t_disabled'], btn_end ),
+                 Button( ( height + 20, 15 ), COLORS['t_disabled'], btn_res ) )
 
     def __reset( self ):
         """Resets the game to default values"""
         self.m_active_powerup = NO_POWERUP
         self.m_status = True
-        self.m_minefield = Minefield( self.m_settings )
+        offset = {
+            'f' : ( OFFSET['y'], OFFSET['x'] ),
+            't' : ( OFFSET['t_y'], OFFSET['t_x'] )
+        }
+        self.m_minefield = Minefield( self.m_settings, offset )
         self.m_powerups = self.__init_powerups() if self.m_powerups else ()
 
     def __activate_powerups( self, token_amount : int ):
@@ -140,7 +146,7 @@ class Game:
             btn.display( self.m_window )
             if event.type == pg.MOUSEBUTTONUP and event.button == 1 and btn.is_cursor_on():
                 if btn.name() == 'end':
-                    self.m_minefield.m_field_data.stop_timer()
+                    self.m_minefield.m_game_data.stop_timer()
                     return False
 
                 if btn.name() == 'res':
@@ -160,12 +166,14 @@ class Game:
             if self.m_minefield.tokens() and self.m_active_powerup == NO_POWERUP:
                 self.__activate_powerups( self.m_minefield.tokens() )
 
+            # if no powerup selected the field is accesible...
             if self.m_active_powerup == NO_POWERUP:
                 color = COLORS['cursor']
                 if event.type == pg.MOUSEBUTTONUP:
-                    self.m_status = self.m_minefield.check_click( event.button, pg.mouse.get_pos() )
+                    self.m_status = self.m_minefield.handle_click( event.button, pg.mouse.get_pos() )
                     self.m_minefield.display_field( self.m_window )
             else:
+                # ...else when clicked on tile powerup is used
                 color = COLORS['pow_cursor']
                 if event.type == pg.MOUSEBUTTONUP:
                     powerup = self.m_powerups[self.m_active_powerup]

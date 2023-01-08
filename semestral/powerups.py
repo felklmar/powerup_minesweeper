@@ -13,8 +13,7 @@ class Powerup( Button ):
     """Class inherited from class Button representing powerup"""
     def __init__( self, coords : tuple, color : tuple, description : tuple, value = 0 ):
         """
-        __Constructor for class instance__\n
-        Creates and initializes powerup class instance\n
+        Initializes class instance\n
         Args:
             coords (tuple): coordinates for powerup button
             color (tuple): text color
@@ -73,8 +72,7 @@ class SafeOpen( Powerup ):
     """
     def __init__( self, coords : tuple, color : tuple, value ):
         """
-        __Constructor for class instance__\n
-        Creates and initializes powerup class instance\n
+        Initializes class instance\n
         Args:
             coords (tuple): coordinates for powerup button
             color (tuple): text color
@@ -118,8 +116,7 @@ class OpenBubble( Powerup ):
     """
     def __init__( self, coords : tuple, color : tuple, value ):
         """
-        __Constructor for class instance__\n
-        Creates and initializes powerup class instance\n
+        Initializes class instance\n
         Args:
             coords (tuple): coordinates for powerup button
             color (tuple): text color
@@ -169,8 +166,7 @@ class CrossOpen( Powerup ):
     """
     def __init__( self, coords : tuple, color : tuple, value, cross_range : np.uint32 ):
         """
-        __Constructor for class instance__\n
-        Creates and initializes powerup class instance\n
+        Initializes class instance\n
         Args:
             coords (tuple): coordinates for powerup button
             color (tuple): text color
@@ -229,8 +225,7 @@ class FlagRandom( Powerup ):
     """
     def __init__( self, coords : tuple, color : tuple, value, mines : np.uint32 ):
         """
-        __Constructor for class instance__\n
-        Creates and initializes powerup class instance\n
+        Initializes class instance\n
         Args:
             coords (tuple): coordinates for powerup button
             color (tuple): text color

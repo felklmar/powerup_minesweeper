@@ -3,21 +3,20 @@ __Module handling minefield__
 Contains Minefield class itself with GameData class aswell
  - minefield class handles everything about minefield from creating
    the field to displaying the field and checking mouse button clicks
- - gamedata class just contains game/field data and runs game timer
+ - gamedata class just contains game data and runs game timer
 """
 import time as t
 import random as rd
 import numpy as np
 import pygame as pg
 from tile import Tile
-from utilities import OFFSET, OUT_OF_BOUNDS, COLORS, FONT
+from utilities import OUT_OF_BOUNDS, COLORS, FONT
 
 class GameData:
-    """Class representig game/field data and timer"""
+    """Class representig game data and timer"""
     def __init__( self, mines : np.uint32, tokens : np.uint32 ):
         """
-        __Constructor for class instance__\n
-        Creates gamedata instance and initializes it\n
+        Initializes class instance\n
         Args:
             mines (np.uint32): number of mines on the minefield
             tokens (np.uint32): number of powerup tokens on the minefield
@@ -33,11 +32,12 @@ class GameData:
         self.m_time = 0                 # time
         self.m_t_running = False        # tells whether the timer is running
 
-    def display( self, window : pg.Surface ):
+    def display( self, window : pg.Surface, offset : tuple ):
         """
         Displays the number of mines left to flag, number of tokens and time\n
         Args:
             window (pg.Surface): pygame window/surface on which tile should display
+            offset (tuple): offset
         """
         font = pg.font.Font( FONT, 17 )
         strings = []
@@ -45,10 +45,10 @@ class GameData:
         strings.append( f"TOKENS: { str( self.m_data['coll'] ) }" )
         strings.append( f"TIME: { str( self.m_time ) }" )
 
-        height = OFFSET['y'] + OFFSET['t_y']
+        height = offset['f'][0] + offset['t'][0]
         pg.draw.rect( window, COLORS['background'], pg.Rect( ( 45, height ), ( 130, 70 ) ) )
         for string in strings:
-            text = font.render( string, True, COLORS['t_basic'] )
+            text = font.render( string, True, COLORS['t_disabled'] )
             t_rect = text.get_rect()
             t_rect.topleft = ( 50, height )
             height += 20
@@ -66,53 +66,55 @@ class GameData:
 
 class Minefield:
     """Class representing the minefield"""
-    def __init__( self, init_data : dict ):
+    def __init__( self, init_data : dict, offset : dict ):
         """
-        __Constructor for class instance__\n
-        Creates minefield instance and initializes it\n
+        Initializes class instance\n
         Args:
             init_data (dict): initial game settings
         """
+        self.m_offset = offset
         # numpy ndarray of Tile class instances
-        self.m_field = self.__init_field( init_data['dim'], init_data['tile_dim'] )
+        self.m_field = self.__init_field( init_data['dim'], init_data['tile_dim'], offset['t'] )
 
         # surface under the field, to which tiles are displayed
-        self.m_surface = self.__init_surface( init_data['dim'], init_data['tile_dim'] )
+        self.m_surface = self.__init_surface( init_data['dim'], init_data['tile_dim'], offset['t'] )
         self.m_mines = []   # list of mine coordinates
 
-        # game/field data ( class GameData instance )
-        self.m_field_data = GameData( init_data['mines'], init_data['tokens'] )
+        # game data ( class GameData instance )
+        self.m_game_data = GameData( init_data['mines'], init_data['tokens'] )
 
     @staticmethod
-    def __init_field( dim : tuple, tile_dim : tuple ) -> np.ndarray:
+    def __init_field( dim : tuple, tile_dim : tuple, offset : tuple ) -> np.ndarray:
         """
         Creates 2D array of minefield tiles\n
         Args:
             dim (tuple): dimensions of minefield
             tile_dim (tuple): dimensions of one minefield tile
+            offset (tuple): offset of tiles
         Returns:
             np.ndarray: 2D array of initialized class Tile instances
         """
         field = np.ndarray( dim, dtype = Tile )
         for t_idx, _ in np.ndenumerate( field ):
-            tile_y = t_idx[0]*tile_dim[0] + OFFSET['t_y']
-            tile_x = t_idx[1]*tile_dim[1] + OFFSET['t_x']
+            tile_y = t_idx[0]*tile_dim[0] + offset[0]
+            tile_x = t_idx[1]*tile_dim[1] + offset[1]
             field[t_idx] = Tile( ( tile_y, tile_x ), tile_dim )
 
         return field
 
     @staticmethod
-    def __init_surface( dim : tuple, tile_dim : tuple ) -> pg.Surface:
+    def __init_surface( dim : tuple, tile_dim : tuple, offset : tuple ) -> pg.Surface:
         """
         Creates pygame surface to which minefield tile will be displayed\n
         Args:
             dim (tuple): dimensions of minefield
             tile_dim (tuple): dimensions of one minefield tile
+            offset (tuple): offset of tiles
         Returns:
             pg.Surface: pygame surface "under" the field
         """
-        surf_y = dim[0]*tile_dim[0] + 2*OFFSET['t_y']
-        surf_x = dim[1]*tile_dim[1] + 2*OFFSET['t_x']
+        surf_y = dim[0]*tile_dim[0] + 2*offset[0]
+        surf_x = dim[1]*tile_dim[1] + 2*offset[1]
         return pg.Surface( ( surf_x, surf_y ), pg.SRCALPHA )
 
     def height( self ) -> np.uint32:
@@ -133,7 +135,7 @@ class Minefield:
 
     def tokens( self ) -> np.uint32:
         """Returns: np.uint32: number of collected tokens"""
-        return self.m_field_data.m_data['coll']
+        return self.m_game_data.m_data['coll']
 
     def __hide_mines_and_tokens( self, c_start_click : tuple ):
         """
@@ -143,7 +145,7 @@ class Minefield:
             c_start_click (tuple):  array coordinations of clicked tile
         """
         # first randomly generate m mine coordinates
-        for _ in range( self.m_field_data.m_data['mines'] ):
+        for _ in range( self.m_game_data.m_data['mines'] ):
             # making sure that tile on random coordinates doesn't already contains mine
             while True:
                 c_mine = ( rd.randint( 0, self.height() - 1 ), rd.randint( 0, self.width() - 1 ) )
@@ -158,11 +160,11 @@ class Minefield:
             self.m_mines.append( c_mine )
 
         # then randomly generate t powerup tokens
-        for _ in range( self.m_field_data.m_data['tokens'] ):
+        for _ in range( self.m_game_data.m_data['tokens'] ):
             # again making sure that tile on random coords doesn't already contains mine or token
             while True:
                 c_token = ( rd.randint( 0, self.height() - 1 ), rd.randint( 0, self.width() - 1 ) )
-                if not self.m_field[c_token].is_token():
+                if not self.m_field[c_token].is_token() and not self.m_field[c_token].is_mine():
                     break
 
             self.m_field[c_token].add_token()
@@ -181,16 +183,16 @@ class Minefield:
 
         # display field tile on last cursor position and then displays cursor on new position
         # if new cursor coords aren't the same as last or out of bounds
-        if c_cursor not in ( OUT_OF_BOUNDS, self.m_field_data.m_cursor ):
-            self.display_field( window, self.m_field_data.m_cursor )
-            rect = self.m_field[c_cursor].tile_rect()
+        if c_cursor not in ( OUT_OF_BOUNDS, self.m_game_data.m_cursor ):
+            self.display_field( window, self.m_game_data.m_cursor )
+            rect = self.m_field[c_cursor].tile_rect( self.m_offset['f'] )
             pg.draw.rect( surface, color, rect )
             window.blit( surface, ( 0, 0 ) )
-            self.m_field_data.m_cursor = c_cursor
+            self.m_game_data.m_cursor = c_cursor
 
         # if cursor is out of bounds display field without it
         if c_cursor == OUT_OF_BOUNDS:
-            self.display_field( window, self.m_field_data.m_cursor )
+            self.display_field( window, self.m_game_data.m_cursor )
             window.blit( surface, ( 0, 0 ) )
 
     def display_game_data( self, window : pg.Surface, display: bool = False ):
@@ -201,12 +203,12 @@ class Minefield:
             display (bool, optional): states whether to display even if the time is not running
                                       Defaults to False.
         """
-        if self.m_field_data.m_t_running:
-            self.m_field_data.display( window )
-            self.m_field_data.m_time = int( t.time() - self.m_field_data.m_start_time )
+        if self.m_game_data.m_t_running:
+            self.m_game_data.display( window, self.m_offset )
+            self.m_game_data.m_time = int( t.time() - self.m_game_data.m_start_time )
 
         if display:
-            self.m_field_data.display( window )
+            self.m_game_data.display( window, self.m_offset )
 
     def display_field( self, window : pg.Surface, c_tile : tuple = OUT_OF_BOUNDS ):
         """
@@ -218,7 +220,7 @@ class Minefield:
         """
         # if not given coordinates in method call display the whole minefield
         if c_tile == OUT_OF_BOUNDS:
-            self.m_surface.fill( ( 50, 50, 50 ) )
+            self.m_surface.fill( COLORS['t_disabled'] )
             for row in self.m_field:
                 for tile in row:
                     tile.display( self.m_surface )
@@ -226,7 +228,8 @@ class Minefield:
             # display only tile on given coordinates
             self.m_field[c_tile].display( self.m_surface )
 
-        window.blit( self.m_surface, ( OFFSET['x'], OFFSET['y'] ) )
+        window.blit( self.m_surface, self.m_offset['f'][::-1] )
+        #window.blit( self.m_surface, ( OFFSET['x'], OFFSET['y'] ) )
         self.display_game_data( window, True )
 
     def handle_click( self, button : np.uint32, mouse_pos : tuple ) -> bool:
@@ -245,22 +248,22 @@ class Minefield:
         if c_click != OUT_OF_BOUNDS:
             if button == 1 and not self.m_field[c_click].is_flag():
                 if len( self.m_mines ) == 0:
-                    self.m_field_data.start_timer()
+                    self.m_game_data.start_timer()
                     self.__hide_mines_and_tokens( c_click )
                 if not self.open( c_click ):
-                    self.m_field_data.stop_timer()
+                    self.m_game_data.stop_timer()
                     self.m_field[c_click].boom()
                     self.open_mines()
                     return False
                 if not self.open( c_click ) or self.__are_safe_tiles_open():
-                    self.m_field_data.stop_timer()
+                    self.m_game_data.stop_timer()
                     self.open_mines()
                     return False
             if button == 3:
                 if self.m_field[c_click].flag():
-                    self.m_field_data.m_data['flags'] += 1
+                    self.m_game_data.m_data['flags'] += 1
                 else:
-                    self.m_field_data.m_data['flags'] -= 1
+                    self.m_game_data.m_data['flags'] -= 1
 
         return True
 
@@ -276,9 +279,6 @@ class Minefield:
             max( c_tile[0] - 1, 0 ) : min( c_tile[0] + 2, self.height() ),
             max( c_tile[1] - 1, 0 ) : min( c_tile[1] + 2, self.width() ) ].flatten()
 
-        #tile_y = c_tile[0]*self.t_dimensions()[0] + OFFSET['t_y']
-        #tile_x = c_tile[1]*self.t_dimensions()[1] + OFFSET['t_x']
-        #neighbors = neighbors[ neighbors != Tile( ( tile_y, tile_x ), self.t_dimensions() ) ]
         return neighbors
 
     def __check_neighbors( self, c_tile : tuple ) -> str:
@@ -327,7 +327,7 @@ class Minefield:
             if n_check == 'open':
                 for neighbor in self.__get_neighbors( c_tile ):
                     if not neighbor.is_mine():
-                        self.__flood_fill( neighbor.arr_coords() )
+                        self.__flood_fill( neighbor.arr_coords( self.m_offset['t'] ) )
             elif n_check == 'boom':
                 for neighbor in self.__get_neighbors( c_tile ):
                     if neighbor.is_mine():
@@ -356,8 +356,8 @@ class Minefield:
         if self.m_field[c_tile].mines_around() != 0:
             for neighbor in self.__get_neighbors( c_tile ):
                 if not neighbor.is_mine() and neighbor.mines_around() == 0:
-                    queue.append( neighbor.arr_coords() )
-                    visited.append( neighbor.arr_coords() )
+                    queue.append( neighbor.arr_coords( self.m_offset['t'] ) )
+                    visited.append( neighbor.arr_coords( self.m_offset['t'] ) )
 
         while queue:
             c_exam_tile = queue.pop( 0 )
@@ -367,11 +367,11 @@ class Minefield:
                 continue
 
             for neighbor in self.__get_neighbors( c_exam_tile ):
-                if not neighbor.arr_coords() in visited:
-                    if self.__has_nomine_neighbor( neighbor.arr_coords() ):
+                if not neighbor.arr_coords( self.m_offset['t'] ) in visited:
+                    if self.__has_nomine_neighbor( neighbor.arr_coords( self.m_offset['t'] ) ):
                         self.add_powerup_token( neighbor.open() )
-                    queue.append( neighbor.arr_coords() )
-                    visited.append( neighbor.arr_coords() )
+                    queue.append( neighbor.arr_coords( self.m_offset['t'] ) )
+                    visited.append( neighbor.arr_coords( self.m_offset['t'] ) )
 
     def open_mines( self ):
         """Opens all tiles with mine"""
@@ -411,8 +411,10 @@ class Minefield:
             tuple: array coordinates or OUT_OF_BOUNDS constant
         """
         mouse_pos = mouse_pos[::-1]
-        col = ( mouse_pos[0] - OFFSET['y'] - OFFSET['t_y'] )//self.t_dimensions()[0]
-        row = ( mouse_pos[1] - OFFSET['x'] - OFFSET['t_x'] )//self.t_dimensions()[1]
+        f_offset = self.m_offset['f']
+        t_offset = self.m_offset['t']
+        col = ( mouse_pos[0] - f_offset[0] - t_offset[0] )//self.t_dimensions()[0]
+        row = ( mouse_pos[1] - f_offset[1] - t_offset[1] )//self.t_dimensions()[1]
         if 0 <= col < self.height() and 0 <= row < self.width():
             return ( col, row )
 
@@ -433,4 +435,4 @@ class Minefield:
         Args:
             how_much (int): how much tokens to add/sub
         """
-        self.m_field_data.m_data['coll'] += how_much
+        self.m_game_data.m_data['coll'] += how_much

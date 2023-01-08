@@ -6,15 +6,13 @@ game settings and starting or quiting game
 import copy
 import pygame as pg
 from button import Button
-from utilities import HEIGHT, WIDTH, FONT, MIN, MAX, DEF_DIFFIC, DIFFIC
+from utilities import HEIGHT, WIDTH, FONT, MIN, MAX, DEF_DIFFIC, DIFFIC, LOGO, OFFSET, COLORS
 
 class Menu:
     """Class representing app/game menu"""
     def __init__( self, window : pg.Surface, def_diff : int = DEF_DIFFIC ):
         """
-        __Constructor for class instance__
-        Creates new instance and initialize everything required,
-        that means buttons, font or game settings\n
+        Initializes class instance\n
         Args:
             window (pg.Surface): pygame window
             def_diff (int): defaul difficulty index
@@ -22,20 +20,45 @@ class Menu:
         self.m_window = window
         self.m_font = pg.font.Font( FONT, 35 )
         self.m_deff_diff = def_diff
-        self.m_buttons = [
-            Button( ( 100, 20 + 20 ), ( 50, 50, 50 ), [ self.m_font, 'start', 'start' ] ),
-            Button( ( 170, 20 + 20 ), ( 50, 50, 50 ), [ self.m_font, 'mode', 'mode' ] ),
-            Button( ( 220, 20 + 20 ), ( 50, 50, 50 ), [ self.m_font, 'diffic', 'difficulty' ] ),
-            Button( ( 450, 20 + 20 ), ( 50, 50, 50 ), [ self.m_font, 'end', 'end' ] ),
 
-            Button( ( 300, 180 + 20 ), ( 50, 50, 50 ), [ self.m_font, 'h_<', '<' ] ),
-            Button( ( 300, 260 + 20 ), ( 50, 50, 50 ), [ self.m_font, 'h_>', '>' ] ),
-            Button( ( 350, 180 + 20 ), ( 50, 50, 50 ), [ self.m_font, 'w_<', '<' ] ),
-            Button( ( 350, 260 + 20 ), ( 50, 50, 50 ), [ self.m_font, 'w_>', '>' ] ),
-            Button( ( 300, 550 + 20 ), ( 50, 50, 50 ), [ self.m_font, 'm_<', '<' ] ),
-            Button( ( 300, 670 + 20 ), ( 50, 50, 50 ), [ self.m_font, 'm_>', '>' ] ),
-            Button( ( 350, 550 + 20 ), ( 50, 50, 50 ), [ self.m_font, 't_<', '<' ] ),
-            Button( ( 350, 670 + 20 ), ( 50, 50, 50 ), [ self.m_font, 't_>', '>' ] ),
+        y_off = OFFSET['m_y'] + LOGO.get_height() + 20
+        x_off = 2*OFFSET['m_x']
+        self.m_buttons = [
+            Button( (   0 + y_off,   0 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 'start', 'start' ) ),
+
+            Button( (  70 + y_off,   0 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 'mode', 'mode' ) ),
+
+            Button( ( 120 + y_off,   0 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 'diffic', 'difficulty' ) ),
+
+            Button( ( 340 + y_off,   0 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 'end', 'end' ) ),
+
+            Button( ( 200 + y_off, 200 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 'h_<', '<' ) ),
+
+            Button( ( 200 + y_off, 280 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 'h_>', '>' ) ),
+
+            Button( ( 250 + y_off, 200 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 'w_<', '<' ) ),
+
+            Button( ( 250 + y_off, 280 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 'w_>', '>' ) ),
+
+            Button( ( 200 + y_off, 570 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 'm_<', '<' ) ),
+
+            Button( ( 200 + y_off, 690 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 'm_>', '>' ) ),
+
+            Button( ( 250 + y_off, 570 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 't_<', '<' ) ),
+
+            Button( ( 250 + y_off, 690 + x_off ), COLORS['t_disabled'],
+                    ( self.m_font, 't_>', '>' ) ),
         ]
         self.m_d_idx = def_diff
         self.m_game_settings = copy.deepcopy( DIFFIC[def_diff][1] )
@@ -81,21 +104,27 @@ class Menu:
 
     def __settings_display( self ):
         """Displays game settings onto the pygame window"""
+        y_off = OFFSET['m_y'] + LOGO.get_height() + 20
+        x_off = 2*OFFSET['m_x']
         # height: its value
-        self.__display_text( 'height:', ( 300, 40 + 20 ), ( 50, 50, 50 ) )
-        self.__display_text( str( self.m_game_settings[0] ), ( 300, 205 + 20 ), ( 255, 255, 255 ) )
+        self.__display_text( 'height:', ( 200 + y_off, 60 + x_off ), COLORS['t_disabled'] )
+        self.__display_text( str( self.m_game_settings[0] ),
+                             ( 200 + y_off, 225 + x_off ), COLORS['t_basic'] )
 
         # width: its value
-        self.__display_text( 'width:', ( 350, 40 + 20 ), ( 50, 50, 50 ) )
-        self.__display_text( str( self.m_game_settings[1] ), ( 350, 205 + 20 ), ( 255, 255, 255 ) )
+        self.__display_text( 'width:', ( 250 + y_off, 60 + x_off ), COLORS['t_disabled'] )
+        self.__display_text( str( self.m_game_settings[1] ),
+                             ( 250 + y_off, 225 + x_off ), COLORS['t_basic'] )
 
         # mines: its value
-        self.__display_text( 'mines:', ( 300, 400 + 20 ), ( 50, 50, 50 ) )
-        self.__display_text( str( self.m_game_settings[2] ), ( 300, 575 + 20 ), ( 255, 255, 255 ) )
+        self.__display_text( 'mines:', ( 200 + y_off, 420 + x_off ), COLORS['t_disabled'] )
+        self.__display_text( str( self.m_game_settings[2] ),
+                             ( 200 + y_off, 595 + x_off ), COLORS['t_basic'] )
 
         # tokens: its value
-        self.__display_text( 'tokens:', ( 350, 400 + 20 ), ( 50, 50, 50 ) )
-        self.__display_text( str( self.m_game_settings[3] ), ( 350, 575 + 20 ), ( 255, 255, 255 ) )
+        self.__display_text( 'tokens:', ( 250 + y_off, 420 + x_off ), COLORS['t_disabled'] )
+        self.__display_text( str( self.m_game_settings[3] ),
+                             ( 250 + y_off, 595 + x_off ), COLORS['t_basic'] )
 
     def __increase( self, event : pg.event, set_idx : int ):
         """
@@ -182,16 +211,22 @@ class Menu:
 
     def display( self ):
         """Displays all the text and buttons on the pygame window"""
+        x_off, y_off = OFFSET['m_x'], OFFSET['m_y']
+        #self.m_window.blit( pg.transform.smoothscale( LOGO, ( 1072, 154 ) ), ( x_off, y_off ) )
+        self.m_window.blit( LOGO, ( x_off, y_off ) )
+
+        y_off += LOGO.get_height() + 20
+        x_off = 2*OFFSET['m_x']
         # gamemode, classic or powerup
         mode_str = 'powerup' if self.m_powerups else 'classic'
-        mode = self.m_font.render( mode_str, True, ( 255, 255, 255 ) )
+        mode = self.m_font.render( mode_str, True, COLORS['t_basic'] )
         m_rect = mode.get_rect()
-        m_rect.topleft = ( 150, 170 )
+        m_rect.topleft = ( 140 + x_off, 70 + y_off )
 
         # game predefined difficulty
-        diffc = self.m_font.render( DIFFIC[self.m_d_idx][0], True, ( 255, 255, 255 ) )
+        diffc = self.m_font.render( DIFFIC[self.m_d_idx][0], True, COLORS['t_basic'] )
         d_rect = diffc.get_rect()
-        d_rect.topleft = ( 215, 220 )
+        d_rect.topleft = ( 205 + x_off, 120 + y_off )
 
         self.m_window.blit( mode, m_rect )
         self.m_window.blit( diffc, d_rect )

@@ -9,8 +9,7 @@ class Tile:
     """Class representing one tile of minefield"""
     def __init__( self, coords : tuple , dim : tuple ):
         """
-        __Constructor for class instance__\n
-        Creates tile instance and initializes it\n
+        Initializes class instance\n
         Args:
             coords (tuple): tile coordinates ( y, x )
             dim (tuple): tile dimension ( tile is usually a square, but doesn't have to be )
@@ -59,20 +58,24 @@ class Tile:
         """
         win.blit( pg.transform.smoothscale( sprite, self.m_dim[::-1] ), self.m_coords[::-1] )
 
-    def arr_coords( self ) -> tuple:
+    def arr_coords( self, t_offset : tuple ) -> tuple:
         """Returns:\n tuple: the tile coordinates in minefield array"""
-        col = ( self.m_coords[0] - OFFSET['t_y'] )//self.m_dim[0]
-        row = ( self.m_coords[1] - OFFSET['t_x'] )//self.m_dim[1]
+        col = ( self.m_coords[0] - t_offset[0] )//self.m_dim[0]
+        row = ( self.m_coords[1] - t_offset[1] )//self.m_dim[1]
+        #col = ( self.m_coords[0] - OFFSET['t_y'] )//self.m_dim[0]
+        #row = ( self.m_coords[1] - OFFSET['t_x'] )//self.m_dim[1]
         return ( col, row )
 
     def dimensions( self ) -> tuple:
         """Returns: tuple: the dimensions of tile"""
         return self.m_dim
 
-    def tile_rect( self ) -> pg.Rect:
+    def tile_rect( self, f_offset : tuple ) -> pg.Rect:
         """Returns: pg.Rect: rectangle created using tile dimensions and coordinates"""
-        y_coord = self.m_coords[0] + OFFSET['y']
-        x_coord = self.m_coords[1] + OFFSET['x']
+        y_coord = self.m_coords[0] + f_offset[0]
+        x_coord = self.m_coords[1] + f_offset[1]
+        #y_coord = self.m_coords[0] + OFFSET['y']
+        #x_coord = self.m_coords[1] + OFFSET['x']
         return pg.Rect( ( x_coord, y_coord ), self.m_dim[::-1] )
 
     def is_mine( self ) -> bool:
@@ -115,7 +118,7 @@ class Tile:
         """
         Opens the tile\n
         Returns:
-            bool: False if tile was already open
+            bool: True if tile contains token
         """
         if not self.is_open() and not self.is_flag():
             self.m_status['open'] = True
