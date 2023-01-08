@@ -3,9 +3,9 @@ __Minesweeper__
 Module containing main function that runs minesweeper
 """
 import pygame as pg
-from game import Game
-from menu import Menu
-from utilities import WIDTH, HEIGHT, TILE_DIM, COLORS
+from src.game import Game
+from src.menu import Menu
+from src.utilities import WIDTH, HEIGHT, TILE_DIM, COLORS, OFF, DEF_DIFFIC
 
 def main():
     """
@@ -20,7 +20,7 @@ def main():
 
     clock = pg.time.Clock()
     running, game_running = True, False
-    menu = Menu( window )
+    menu = Menu( window, OFF['m'], COLORS, DEF_DIFFIC )
     while running:
         clock.tick( 60 )
         for event in pg.event.get():
@@ -44,7 +44,7 @@ def main():
                             'mines' : menu.mines(),
                             'tokens' : menu.tokens()
                         }
-                    game = Game( game_data )
+                    game = Game( game_data, OFF, COLORS )
                     window.fill( COLORS['background'] )
                     game_running = True
             else:
@@ -53,7 +53,7 @@ def main():
                     menu.default()
 
         if game_running:
-            game.m_minefield.display_game_data( window )
+            game.m_minefield.display_game_data( window, COLORS )
 
         pg.display.update()
 
