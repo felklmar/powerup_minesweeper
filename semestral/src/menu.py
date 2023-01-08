@@ -256,6 +256,7 @@ class Menu:
         """
         for button in self.m_buttons:
             if event.type == pg.MOUSEBUTTONUP and button.is_cursor_on():
+                self.__customization_buttons( event, button.name() )
                 if event.button == 1:
                     if button.name() == 'mode':
                         self.m_powerups = not self.m_powerups
@@ -269,7 +270,5 @@ class Menu:
                             self.m_game_settings[3] = 0
 
                     return button.name()
-
-                self.__customization_buttons( event, button.name() )
 
         return 'none'

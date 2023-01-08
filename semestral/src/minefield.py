@@ -372,8 +372,7 @@ class Minefield:
 
             for neighbor in self.__get_neighbors( c_exam_tile ):
                 if not neighbor.arr_coords( self.m_offset['t'] ) in visited:
-                    if self.__has_nomine_neighbor( neighbor.arr_coords( self.m_offset['t'] ) ):
-                        self.add_powerup_token( neighbor.open() )
+                    self.add_powerup_token( neighbor.open() )
                     queue.append( neighbor.arr_coords( self.m_offset['t'] ) )
                     visited.append( neighbor.arr_coords( self.m_offset['t'] ) )
 
@@ -383,19 +382,6 @@ class Minefield:
             if self.m_field[c_mine].is_flag():
                 self.m_field[c_mine].flag()
             self.m_field[c_mine].open()
-
-    def __has_nomine_neighbor( self, c_tile : tuple ) -> bool:
-        """
-        Checks whether the tile has neighbor with zero mines around\n
-        Args:
-            c_tile (tuple): coordinates of tile to check
-        Returns:
-            bool: True if tile actually has neighbor with no mines around
-        """
-        for neighbor in self.__get_neighbors( c_tile ):
-            if neighbor.mines_around() == 0:
-                return True
-        return False
 
     def __are_safe_tiles_open( self ) -> bool:
         """Returns: bool: True if all safe tiles are open"""
