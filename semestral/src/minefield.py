@@ -38,7 +38,7 @@ class GameData:
         Args:
             window (pg.Surface): pygame window/surface on which tile should display
             offset (dict): offset to display everything correctly
-            colors (dict): colors
+            colors (dict): colors of text, background,...
         """
         font = pg.font.Font( FONT, 17 )
         strings = []
@@ -72,6 +72,8 @@ class Minefield:
         Initializes class instance\n
         Args:
             init_data (dict): initial game settings
+            offset (dict): offset to display everything correctly
+            colors (dict): colors of text, background and cursor
         """
         self.m_offset = offset
         self.m_colors = colors
@@ -86,37 +88,37 @@ class Minefield:
         self.m_game_data = GameData( init_data['mines'], init_data['tokens'] )
 
     @staticmethod
-    def __init_field( dim : tuple, tile_dim : tuple, offset : tuple ) -> np.ndarray:
+    def __init_field( dim : tuple, tile_dim : tuple, t_offset : tuple ) -> np.ndarray:
         """
         Creates 2D array of minefield tiles\n
         Args:
             dim (tuple): dimensions of minefield
             tile_dim (tuple): dimensions of one minefield tile
-            offset (tuple): offset of tiles
+            t_offset (tuple): offset of tiles
         Returns:
             np.ndarray: 2D array of initialized class Tile instances
         """
         field = np.ndarray( dim, dtype = Tile )
         for t_idx, _ in np.ndenumerate( field ):
-            tile_y = t_idx[0]*tile_dim[0] + offset[0]
-            tile_x = t_idx[1]*tile_dim[1] + offset[1]
+            tile_y = t_idx[0]*tile_dim[0] + t_offset[0]
+            tile_x = t_idx[1]*tile_dim[1] + t_offset[1]
             field[t_idx] = Tile( ( tile_y, tile_x ), tile_dim )
 
         return field
 
     @staticmethod
-    def __init_surface( dim : tuple, tile_dim : tuple, offset : tuple ) -> pg.Surface:
+    def __init_surface( dim : tuple, tile_dim : tuple, t_offset : tuple ) -> pg.Surface:
         """
         Creates pygame surface to which minefield tile will be displayed\n
         Args:
             dim (tuple): dimensions of minefield
             tile_dim (tuple): dimensions of one minefield tile
-            offset (tuple): offset of tiles
+            t_offset (tuple): offset of tiles
         Returns:
             pg.Surface: pygame surface "under" the field
         """
-        surf_y = dim[0]*tile_dim[0] + 2*offset[0]
-        surf_x = dim[1]*tile_dim[1] + 2*offset[1]
+        surf_y = dim[0]*tile_dim[0] + 2*t_offset[0]
+        surf_x = dim[1]*tile_dim[1] + 2*t_offset[1]
         return pg.Surface( ( surf_x, surf_y ), pg.SRCALPHA )
 
     def height( self ) -> np.uint32:
@@ -309,13 +311,13 @@ class Minefield:
 
         return 'ok'
 
-    def open( self, c_tile ) -> bool:
+    def open( self, c_tile : tuple ) -> bool:
         """
         Opens the minefield tile. If tile has zero mines around, opens all connected
         "zero" tiles and their neighbors. If tile is already open, checks wheter all neigbor
         mines are correctly flaged and opens them or detonates mines\n
         Args:
-            c_tile (_type_): coordinates of tile to open
+            c_tile (tuple): coordinates of tile to open
         Returns:
             bool: False if mine was detonated
         """

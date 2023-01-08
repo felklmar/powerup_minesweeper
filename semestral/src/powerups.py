@@ -36,6 +36,7 @@ class Powerup( Button ):
         Args:
             window (pg.Surface): pygame window/surface on which powerup button should be print
             minefield (Minefield): minefield on which are powerups applied
+            offset (dict): offset to display everything correctly
             mouse_pos (tuple): mouse position
         Returns:
             str: 'applied', 'used', 'not_used'

@@ -1,3 +1,4 @@
+# pylint: disable=too-many-instance-attributes
 """
 __Main ( and only )  menu__
 Handles menu, that means it handles menu buttons,
@@ -16,6 +17,8 @@ class Menu:
         Initializes class instance\n
         Args:
             window (pg.Surface): pygame window
+            offset (dict): offset to display everything correctly
+            colors (dict): colors of text, background and cursor
             def_diff (int): defaul difficulty index
         """
         self.m_window = window
@@ -225,6 +228,7 @@ class Menu:
         x_off = 2*self.m_offset[1]
         # gamemode, classic or powerup
         mode_str = 'powerup' if self.m_powerups else 'classic'
+
         mode = self.m_font.render( mode_str, True, self.m_colors['t_basic'] )
         m_rect = mode.get_rect()
         m_rect.topleft = ( 140 + x_off, 70 + y_off )

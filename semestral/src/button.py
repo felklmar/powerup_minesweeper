@@ -3,7 +3,6 @@ __Module handling button__
 Contains class Button, which represents and controls one button
 """
 import pygame as pg
-from src.utilities import COLORS
 
 class Button:
     """Class representing one onscreen button/choice"""

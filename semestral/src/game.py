@@ -1,3 +1,4 @@
+# pylint: disable=too-many-instance-attributes, too-few-public-methods
 """
 __Game instance__
 Handles one game instance, from its start to the end. Game end can be reached by multiple ways,
