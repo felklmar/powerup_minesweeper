@@ -3,9 +3,9 @@ __Minesweeper__
 Module containing main function that runs minesweeper
 """
 import pygame as pg
-from powerup_minesweeper.src.game import Game
-from powerup_minesweeper.src.menu import Menu
-from powerup_minesweeper.src.utilities import WIDTH, HEIGHT, TILE_DIM, COLORS, OFF, DEF_DIFFIC
+from src.game import Game
+from src.menu import Menu
+from src.utilities import WIDTH, HEIGHT, TILE_DIM, COLORS, OFF, DEF_DIFFIC
 
 def main():
     """

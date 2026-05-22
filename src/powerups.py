@@ -5,9 +5,9 @@ Contains Powerup class and its children
 import random as rd
 import pygame as pg
 import numpy as np
-from powerup_minesweeper.src.button import Button
-from powerup_minesweeper.src.minefield import Minefield
-from powerup_minesweeper.src.utilities import FONT, OUT_OF_BOUNDS
+from src.button import Button
+from src.minefield import Minefield
+from src.utilities import FONT, OUT_OF_BOUNDS
 
 class Powerup( Button ):
     """Class inherited from class Button representing powerup"""
