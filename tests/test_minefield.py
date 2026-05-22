@@ -4,8 +4,8 @@
 """Tests minefield.py"""
 import pytest
 import numpy as np
-from src.minefield import Minefield, GameData
-from src.utilities import COLORS, OUT_OF_BOUNDS
+from powerup_minesweeper.src.minefield import Minefield, GameData
+from powerup_minesweeper.src.utilities import COLORS, OUT_OF_BOUNDS
 
 @pytest.mark.parametrize(
     'init_data, offset',

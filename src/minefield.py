@@ -9,8 +9,8 @@ import time as t
 import random as rd
 import numpy as np
 import pygame as pg
-from src.tile import Tile
-from src.utilities import OUT_OF_BOUNDS, FONT
+from powerup_minesweeper.src.tile import Tile
+from powerup_minesweeper.src.utilities import OUT_OF_BOUNDS, FONT
 
 class GameData:
     """Class representig game data and timer"""

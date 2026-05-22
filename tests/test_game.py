@@ -4,8 +4,8 @@
 """Tests game.py"""
 import pytest
 import pygame as pg
-from src.game import Game
-from src.utilities import COLORS, OFF, NO_POWERUP
+from powerup_minesweeper.src.game import Game
+from powerup_minesweeper.src.utilities import COLORS, OFF, NO_POWERUP
 
 @pytest.fixture( name = 'game_pow' )
 def game_powerups() -> Game:

@@ -5,10 +5,10 @@ Handles one game instance, from its start to the end. Game end can be reached by
 one of them is end or reset button which this module also handle.
 """
 import pygame as pg
-from src.powerups import SafeOpen, OpenBubble, CrossOpen, FlagRandom
-from src.minefield import Minefield
-from src.button import Button
-from src.utilities import NO_POWERUP, FONT
+from powerup_minesweeper.src.powerups import SafeOpen, OpenBubble, CrossOpen, FlagRandom
+from powerup_minesweeper.src.minefield import Minefield
+from powerup_minesweeper.src.button import Button
+from powerup_minesweeper.src.utilities import NO_POWERUP, FONT
 
 class Game:
     """Class representing one minesweeper game"""

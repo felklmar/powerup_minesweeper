@@ -1,7 +1,7 @@
 """Tests tile.py"""
 import pytest
 import pygame as pg
-from src.tile import Tile
+from powerup_minesweeper.src.tile import Tile
 
 @pytest.mark.parametrize(
     'offset, c_tile, d_tile',

@@ -3,7 +3,7 @@ __Module that represents one tile of minefield__
 Contains class Tile, which represents and control one tile of the minefield
 """
 import pygame as pg
-from src.utilities import TILES
+from powerup_minesweeper.src.utilities import TILES
 
 class Tile:
     """Class representing one tile of minefield"""

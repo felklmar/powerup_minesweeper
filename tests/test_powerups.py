@@ -5,9 +5,9 @@
 import pytest
 import numpy as np
 import pygame as pg
-from src.minefield import Minefield
-from src.powerups import SafeOpen, OpenBubble, FlagRandom, CrossOpen
-from src.utilities import COLORS
+from powerup_minesweeper.src.minefield import Minefield
+from powerup_minesweeper.src.powerups import SafeOpen, OpenBubble, FlagRandom, CrossOpen
+from powerup_minesweeper.src.utilities import COLORS
 
 @pytest.fixture( name = 'mines' )
 def mines_coords() -> tuple:

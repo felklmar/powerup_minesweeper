@@ -6,8 +6,8 @@ game settings and starting or quiting game
 """
 import copy
 import pygame as pg
-from src.button import Button
-from src.utilities import HEIGHT, WIDTH, FONT, MIN, MAX, DIFFIC, LOGO
+from powerup_minesweeper.src.button import Button
+from powerup_minesweeper.src.utilities import HEIGHT, WIDTH, FONT, MIN, MAX, DIFFIC, LOGO
 
 class Menu:
     """Class representing app/game menu"""
