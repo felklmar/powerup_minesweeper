@@ -1,4 +1,4 @@
-# Hledání min s bonusy (powerupy)
+# Power-up Minesweeper
 Aplikace/hra je klasické hledání min s bonusovým módem, ve kterém sbíráte žetony a ty následně utrácíte za bonusy, které buď označí miny vlaječkou, nebo otevřou prázdné políčko.
 
 - **Aplikace/hra vyžaduje knihovny:** `NumPy` a `Pygame`
