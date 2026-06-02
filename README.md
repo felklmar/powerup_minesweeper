@@ -64,7 +64,7 @@ When playing the bonus mode, a set number of currency tokens are hidden under ra
 | :--- | :---: | :--- |
 | **Reveal** | `1` | Safely tests a single high-risk cell. Automatically places a flag if a mine is present, or opens the tile safely if it is clear. |
 | **Bubble** | `2` | Triggers a fresh flood-fill reveal starting from a random hidden empty area on the board. |
-| **Flag 7** | `2` | Instantly and correctly flags 7 random hidden mines anywhere across the map. |
+| **Flag\_7** | `2` | Instantly and correctly flags 7 random hidden mines anywhere across the map. |
 | **Cross** | `3` | Directly clears a selected tile and shoots out a horizontal and vertical scanning beam that safely clears all safe tiles up to a distance of 2 spaces. |
 
 ---
